@@ -29,7 +29,7 @@ fn Subprocess(command str, args &List<str>) Result<Subprocess, str> {
 
 fn FindProgramInPath(relative_program str) Opt<str> {
   path_env_var = get_env_var("PATH");
-  separator = if (IsWindows() ? ";" : ":");
+  separator = if (IsWindows()) { ";" } else { ":" };
   paths = path_env_var.split(separator);
   println("path_env_var {path_env_var}");
   println("separator {separator}");

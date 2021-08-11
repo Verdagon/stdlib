@@ -28,7 +28,9 @@ fn Subprocess(command str, args &List<str>) Result<Subprocess, str> {
 }
 
 fn FindProgramInPath(relative_program str) Opt<str> {
-  paths = get_env_var("PATH").split(":");
+  path_env_var = get_env_var("PATH");
+  separator = if (IsWindows() ? ";" : ":");
+  paths = path_env_var.split(separator);
 
   program = "";
   if (not exists(relative_program)) {

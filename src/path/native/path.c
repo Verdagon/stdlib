@@ -129,10 +129,10 @@ static stdlib_StrArray* iterdir_internal(char* dirPath) {
   WIN32_FIND_DATA fdFile; 
   HANDLE hFind = NULL; 
 
-  wchar_t sPath[2048]; 
+  wchar_t sPath[2048] = { 0 };
 
   //Specify a file mask. *.* = We want everything! 
-  sprintf(sPath, L"%s\\*.*", dirPath); 
+  sprintf(sPath, "%s\\*.*", dirPath); 
 
   printf("doing find first file for: '%s' '%s'\n", dirPath, sPath);
   if ((hFind = FindFirstFile(sPath, &fdFile)) == INVALID_HANDLE_VALUE) {

@@ -155,7 +155,7 @@ static stdlib_StrArray* iterdir_internal(char* dirPath) {
 
 #else
   if (is_file_internal(dirPath)) {
-      perror("is a file not a path");
+      perror("Called iterdir on a file, not a path!");
       exit(0);
   }
   DIR* d;

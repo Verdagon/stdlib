@@ -177,6 +177,7 @@ static stdlib_StrArray* iterdir_internal(char* dirPath) {
   }
 #endif
 
+  printf("done with iterdir_internal!\n");
   stdlib_StrArray* retval = (stdlib_StrArray*)vale_queue_to_array(entries); 
   vale_queue_destroy(entries);
   return retval;

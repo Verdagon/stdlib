@@ -52,9 +52,21 @@ fn FindProgramInPath(relative_program str) Opt<str> {
   }
 
   if (program == "") {
+    println("done with FindProgramInPath, returning none");
     ret None<str>();
   }
+  println("done with FindProgramInPath, returning {program}");
   ret Some<str>(program);
+}
+
+fn PrintCommandLinePart(builder &!StringBuilder, part StrSlice) {
+  if (part.has(" ")) {
+    builder!.print("\"");
+    builder!.print(part.replaceAll("\"", "\\\""));
+    builder!.print("\"");
+  } else {
+    builder!.print(part);
+  }
 }
 
 fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str> {
@@ -70,11 +82,18 @@ fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str
     panic("Unable to execute {relative_program}, is a directory.");
   }
 
+  command_str_builder = StringBuilder();
+  command_str_builder!.PrintCommandLinePart(program.slice());
+
   cmdlist! = List<str>();
   cmdlist!.add(program);
-  each (&args) (element){
-    cmdlist!.add(element.str());
+  each (&args) (arg){
+    command_str_builder!.PrintCommandLinePart(arg);
+    cmdlist!.add(arg.str());
   }
+
+  command_str = command_str_builder.str();
+  println("Starting command: " + command_str);
 
   cmd_array = cmdlist.toImmArray();
 
@@ -83,7 +102,8 @@ fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str
     ret Err<Subprocess, str>("Failed to create command!");
   }
 
-  retval = Subprocess(cmdlist.join(" "), handle);
+  retval = Subprocess(command_str, handle);
+  println("Started command!");
   ret Ok<Subprocess, str>(retval);
 }
 

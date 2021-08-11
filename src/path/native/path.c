@@ -136,23 +136,30 @@ static stdlib_StrArray* iterdir_internal(char* dirPath) {
 
   printf("doing find first file for: '%s' '%s'\n", dirPath, sPath);
   if ((hFind = FindFirstFile(sPath, &fdFile)) == INVALID_HANDLE_VALUE) {
+    printf("zork __FILE__\n");
     fprintf(stderr, "Path not found: [%s]\n", dirPath);
     stdlib_StrArray* retval = malloc(sizeof(long));
     retval->length = 0;
     return retval;
   } 
+    printf("zork __FILE__\n");
 
   do {
+    printf("zork __FILE__\n");
     //Find first file will always return "."
     //    and ".." as the first two directories. 
     if (wcscmp(fdFile.cFileName, L".") != 0 &&
         wcscmp(fdFile.cFileName, L"..") != 0) { 
+    printf("zork __FILE__\n");
       vale_queue_push(entries, fdFile.cFileName); 
     }
+    printf("zork __FILE__\n");
   } while(FindNextFile(hFind, &fdFile)); //Find the next file.
 
+    printf("zork __FILE__\n");
   FindClose(hFind); //Always, Always, clean things up!
 
+    printf("zork __FILE__\n");
 #else
   if (is_file_internal(dirPath)) {
       perror("is a file not a path");

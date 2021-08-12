@@ -53,11 +53,17 @@ int64_t stdlib_launch_command(stdlib_StrArray* chain) {
 }
 
 ValeStr* stdlib_read_stdout(int64_t cmd, long bytes) {
+  printf("zork %d\n", __LINE__);
   ValeStr* out = ValeStrNew(bytes+1); 
+  printf("zork %d\n", __LINE__);
   FILE* stdout_handle = subprocess_stdout((struct subprocess_s*)cmd); 
+  printf("zork %d\n", __LINE__);
   long read_len = read_into_buffer(out->chars, bytes, stdout_handle);
+  printf("zork %d\n", __LINE__);
   out->chars[bytes] = '\0'; 
+  printf("zork %d\n", __LINE__);
   out->length = read_len;
+  printf("zork %d\n", __LINE__);
   //fclose(stdout_handle);
   return out;
 }

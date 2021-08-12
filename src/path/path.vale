@@ -100,7 +100,7 @@ fn str(path &Path) str {
 }
 
 fn exists(path &Path) bool {
-  ret exists(path.str());
+  ret path.resolve().str().exists();
 }
 
 fn ==(a &Path, b &Path) bool {

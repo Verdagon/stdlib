@@ -47,6 +47,7 @@ int64_t stdlib_launch_command(stdlib_StrArray* chain) {
     return 0;
   }
   out = (unsigned long)subproc;
+  printf("bork %d, %lld\n", __LINE__, out);
   free(args);
   free(chain);
   return out;
@@ -55,7 +56,7 @@ int64_t stdlib_launch_command(stdlib_StrArray* chain) {
 ValeStr* stdlib_read_stdout(int64_t cmd, long bytes) {
   printf("zork %d\n", __LINE__);
   ValeStr* out = ValeStrNew(bytes+1); 
-  printf("zork %d\n", __LINE__);
+  printf("zork %d, %lld\n", __LINE__, cmd);
   FILE* stdout_handle = subprocess_stdout((struct subprocess_s*)cmd); 
   printf("zork %d\n", __LINE__);
   long read_len = read_into_buffer(out->chars, bytes, stdout_handle);

@@ -155,6 +155,7 @@ static int8_t iterdir_internal(stdlib_PathRef path, char* dirPath, stdlib_PathLi
     //    and ".." as the first two directories. 
     if (wcscmp(fdFile.cFileName, L".") != 0 &&
         wcscmp(fdFile.cFileName, L"..") != 0) {
+      printf("adding path: %s\n", fdFile.cFileName);
       stdlib_AddToPathChildList(path, destinationList, ValeStrFrom(fdFile.cFileName));
     }
   } while(FindNextFile(hFind, &fdFile)); //Find the next file.

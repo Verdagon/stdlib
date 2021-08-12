@@ -110,12 +110,15 @@ fn consume_and_join<StdoutConsumer, StderrConsumer>(
   stdout_consumer StdoutConsumer,
   stderr_consumer StderrConsumer)
 int {
+  println("in consume_and_join");
   running = true;
   while (running) {
     stdout_consumed_anything = false;
     stdout_consuming = true;
     while (stdout_consuming) {
+      println("doing read_stdout");
       s = self.read_stdout(1000);
+      println("got some stdout");
       if (s.len() > 0) {
         (&!stdout_consumer)(s);
         set stdout_consumed_anything = true;
@@ -127,7 +130,9 @@ int {
     stderr_consumed_anything = false;
     stderr_consuming = true;
     while (stderr_consuming) {
+      println("doing read_stderr");
       s = self.read_stderr(1000);
+      println("got some stderr");
       if (s.len() > 0) {
         (&!stderr_consumer)(s);
         set stderr_consumed_anything = true;
@@ -137,18 +142,29 @@ int {
     }
 
     if (not stdout_consumed_anything and not stderr_consumed_anything and not self.alive()) {
+      println("stopping loop");
       set running = false;
     }
   }
+  println("done consume_and_join");
 
   ret join(self);
 }
 
 fn print_and_join(self Subprocess) int {
-  ret consume_and_join(
+  println("in print_and_join");
+  x = consume_and_join(
     self,
-    &!(stdout_chunk){ print(stdout_chunk); },
-    &!(stderr_chunk){ print(stderr_chunk); });
+    &!(stdout_chunk){
+      println("reading stdout chunk");
+      print(stdout_chunk);
+    },
+    &!(stderr_chunk){
+      println("reading stderr chunk");
+      print(stderr_chunk);
+    });
+  println("done print_and_join");
+  ret x;
 }
 
 struct ExecResult {
@@ -169,8 +185,11 @@ fn capture_and_join(self Subprocess) ExecResult {
 }
 
 fn join(self Subprocess) int {
+  println("in join");
   status = join(self.handle);
+  println("calling destroy");
   destroy(self.handle);
+  println("done join");
   ret status;
 }
 

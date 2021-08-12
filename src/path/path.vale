@@ -4,7 +4,12 @@ export Array<imm, final, str> as StrArray;
 export Array<mut, vary, str> as MutStrArray;
 
 
-struct Path {
+export List<Path> as PathList;
+fn AddToPathChildList(parent &Path, list &!List<Path>, child_name str) export {
+  list!.add(parent./(child_name));
+}
+
+struct Path export {
   segments List<str>;
   //drive Opt<str>;
 }
@@ -143,9 +148,15 @@ fn /(path &Path, segment str) Path {
   ret new_path;
 }
 
-fn iterdir(path &Path) Array<mut, final, Path> {
-  strs = iterdir(path.str());
-  ret [*](strs.len(), &!{ path / strs[_] });
+fn iterdir(path &Path) List<Path> {
+  destination_list = List<Path>();
+  println("in iterdir!");
+  success = iterdir(path, path.str(), &!destination_list);
+  if (not success) {
+    panic("iterdir failed!");
+  }
+  println("done with iterdir!");
+  ret destination_list;
 }
 
 fn readAsString(path &Path) str {
@@ -157,10 +168,11 @@ fn writeString(path &Path, contentsVStr str) {
 
 fn readFileAsString(filenameVStr str) str extern;
 fn writeStringToFile(filenameVStr str, contentsVStr str) void extern;
+fn GetEnvPathSeparator() str extern;
 fn GetPathSeparator() str extern;
 fn is_dir(value str) bool extern;
 fn is_file(value str) bool extern;
 fn exists(path str) bool extern;
-fn iterdir(path str) Array<imm,final,str> extern;
+fn iterdir(path &Path, path_str str, destination_list &!List<Path>) bool extern;
 fn makeDirectory(path str) bool extern;
 fn resolve(path str) str extern;

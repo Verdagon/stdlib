@@ -23,6 +23,9 @@
 #include "stdlib/makeDirectory.h"
 #include "stdlib/readFileAsString.h"
 #include "stdlib/writeStringToFile.h"
+#include "stdlib/Path.h"
+#include "stdlib/PathList.h"
+#include "stdlib/AddToPathChildList.h"
 
 static int8_t is_file_internal(char* path) {
 #ifdef _WIN32
@@ -123,71 +126,61 @@ static void writeStringToFile_internal(char* filename, char* contents, int conte
   fclose(fp);
 }
 
-static stdlib_StrArray* iterdir_internal(char* dirPath) {
-  vale_queue* entries = vale_queue_empty();
+static int8_t iterdir_internal(stdlib_PathRef path, char* dirPath, stdlib_PathListRef destinationList) {
+  if (!exists_internal(dirPath)) {
+    fprintf(stderr, "iterdir: path doesn't exist! %s\n", dirPath);
+    return 0;
+  }
+  if (is_file_internal(dirPath)) {
+    fprintf(stderr, "Called iterdir on a file, not a path! %s\n", dirPath);
+    return 0;
+  }
 
 #ifdef _WIN32
   WIN32_FIND_DATA fdFile; 
   HANDLE hFind = NULL; 
 
-  wchar_t sPath[2048] = { 0 };
-
   //Specify a file mask. *.* = We want everything! 
-  sprintf(sPath, "%s\\*.*", dirPath); 
+  wchar_t searchPath[2048] = { 0 };
+  sprintf(searchPath, "%s\\*.*", dirPath); 
 
-  printf("doing find first file for: '%s' '%s'\n", dirPath, sPath);
-  if ((hFind = FindFirstFile(sPath, &fdFile)) == INVALID_HANDLE_VALUE) {
+  printf("doing find first file for: '%s' '%s'\n", dirPath, searchPath);
+  if ((hFind = FindFirstFile(searchPath, &fdFile)) == INVALID_HANDLE_VALUE) {
     fprintf(stderr, "Path not found: [%s]\n", dirPath);
-    stdlib_StrArray* retval = malloc(sizeof(long));
-    retval->length = 0;
-    return retval;
+    return 0;
   } 
 
   do {
     //Find first file will always return "."
     //    and ".." as the first two directories. 
     if (wcscmp(fdFile.cFileName, L".") != 0 &&
-        wcscmp(fdFile.cFileName, L"..") != 0) { 
-      vale_queue_push(entries, fdFile.cFileName); 
+        wcscmp(fdFile.cFileName, L"..") != 0) {
+      stdlib_AddToPathChildList(path, destinationList, ValeStrFrom(fdFile.cFileName));
     }
   } while(FindNextFile(hFind, &fdFile)); //Find the next file.
 
   FindClose(hFind); //Always, Always, clean things up!
 
 #else
-  if (is_file_internal(dirPath)) {
-      perror("Called iterdir on a file, not a path!");
-      exit(0);
-  }
   DIR* d;
   struct dirent *dir;
   d = opendir(dirPath);
-  if (d) {
-      while((dir = readdir(d)) != NULL){
-          if (strcmp(".", dir->d_name) == 0) {
-            continue;
-          }
-          if (strcmp("..", dir->d_name) == 0) {
-            continue;
-          }
-          int64_t length = strlen(dir->d_name);
-          ValeStr* path_name = ValeStrNew(length);
-          strcpy(path_name->chars, dir->d_name);
-          vale_queue_push(entries, path_name); 
-      }
-      closedir(d); 
-  } else {
-      printf("cannot open directory: %s\n", dirPath);
-      stdlib_StrArray* retval = malloc(sizeof(long));
-      retval->length = 0;
-      return retval;
+  if (d == 0) {
+    printf("cannot open directory: %s\n", dirPath);
+    return 0;
   }
+
+  while((dir = readdir(d)) != NULL){
+    if (strcmp(".", dir->d_name) != 0 &&
+        strcmp("..", dir->d_name) != 0) {
+      stdlib_AddToPathChildList(path, destinationList, ValeStrFrom(dir->d_name));
+    }
+  }
+  closedir(d); 
 #endif
 
   printf("done with iterdir_internal!\n");
-  stdlib_StrArray* retval = (stdlib_StrArray*)vale_queue_to_array(entries); 
-  vale_queue_destroy(entries);
-  return retval;
+  return 1;
 }
 
 
@@ -211,9 +204,11 @@ extern void stdlib_writeStringToFile(ValeStr* filenameVStr, ValeStr* contentsVSt
   free(contentsVStr);
 }
 
-extern stdlib_StrArray* stdlib_iterdir(ValeStr* path) {
-  stdlib_StrArray* result = iterdir_internal(path->chars);
-  free(path);
+extern int8_t stdlib_iterdir(stdlib_PathRef path, ValeStr* pathStr, stdlib_PathListRef destinationList) {
+  printf("in stdlib_iterdir\n");
+  int8_t result = iterdir_internal(path, pathStr->chars, destinationList);
+  free(pathStr);
+  printf("done with stdlib_iterdir\n");
   return result;
 }
 
@@ -233,6 +228,14 @@ extern int8_t stdlib_makeDirectory(ValeStr* path) {
   int8_t result = makeDirectory_internal(path->chars);
   free(path);
   return result;
+}
+
+extern ValeStr* stdlib_GetEnvPathSeparator() {
+#ifdef _WIN32
+  return ValeStrFrom(";");
+#else
+  return ValeStrFrom(":");
+#endif
 }
 
 extern ValeStr* stdlib_GetPathSeparator() {

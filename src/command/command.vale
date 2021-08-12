@@ -30,18 +30,18 @@ fn Subprocess(command str, args &List<str>) Result<Subprocess, str> {
 
 fn FindProgramInPath(relative_program str) Opt<str> {
   path_env_var = get_env_var("PATH");
-  paths = path_env_var.split(GetPathSeparator());
+  paths = path_env_var.split(GetEnvPathSeparator());
   println("path_env_var {path_env_var}");
   if (paths.len() > 0) {
-    println("first path {paths.get(0)}");
+    println("first path {paths.get(0)} num paths {paths.len()}");
   }
 
   program = "";
   if (not exists(relative_program)) {
      each (&paths) (path){
-      programs_at_path = iterdir(path.str());
-      each (&programs_at_path) (program_at_path){
-        if (program_at_path == relative_program){
+      child_paths = path.str().Path().iterdir();
+      each (&child_paths) (child_path){
+        if (child_path.name() == relative_program){
           set program = path + GetPathSeparator() + relative_program;
         }
       }

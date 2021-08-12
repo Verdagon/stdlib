@@ -16,8 +16,37 @@ fn is_dir(path &Path) bool {
   is_dir(path.str())
 }
 
-fn makeDirectory(path &Path) int {
+fn is_file(path &Path) bool {
+  is_file(path.str())
+}
+
+fn makeDirectory(path &Path) bool {
   makeDirectory(path.str())
+}
+
+fn makeDirectories(path &Path) bool {
+  if (path.segments.len() == 0) {
+    ret false;
+  }
+  if (not path.exists()) {
+    // Recurse
+    if (not makeDirectories(&path.parent())) {
+      ret false;
+    }
+    if (not path.makeDirectory()) {
+      ret false;
+    }
+  }
+  ret true;
+}
+
+fn parent(path &Path) Path {
+  result = path.clone();
+  if (result.segments.len() == 0) {
+    panic("Can't get parent directory, is already root.");
+  }
+  result.segments!.remove(result.segments.len() - 1);
+  ret result;
 }
 
 fn directory(path &Path) Path {
@@ -119,6 +148,12 @@ fn iterdir(path &Path) Array<mut, final, Path> {
   ret [*](strs.len(), &!{ path / strs[_] });
 }
 
+fn readAsString(path &Path) str {
+  readFileAsString(path.str())
+}
+fn writeString(path &Path, contentsVStr str) {
+  writeStringToFile(path.str(), contentsVStr)
+}
 
 fn readFileAsString(filenameVStr str) str extern;
 fn writeStringToFile(filenameVStr str, contentsVStr str) void extern;
@@ -127,5 +162,5 @@ fn is_dir(value str) bool extern;
 fn is_file(value str) bool extern;
 fn exists(path str) bool extern;
 fn iterdir(path str) Array<imm,final,str> extern;
-fn makeDirectory(path str) int extern;
+fn makeDirectory(path str) bool extern;
 fn resolve(path str) str extern;

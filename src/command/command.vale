@@ -86,16 +86,12 @@ fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str
   command_str_builder = StringBuilder();
   command_str_builder!.PrintCommandLinePart(program.slice());
 
-  first = true;
   cmdlist! = List<str>();
   cmdlist!.add(program);
   each (&args) (arg){
-    if (not first) {
-      command_str_builder!.print(" ");
-    }
+    command_str_builder!.print(" ");
     command_str_builder!.PrintCommandLinePart(arg);
     cmdlist!.add(arg.str());
-    set first = false;
   }
 
   command_str = command_str_builder.str();

@@ -59,11 +59,12 @@ static int8_t exists_internal(char* path) {
 #endif
 }
 
-static long makeDirectory_internal(char* path) {
-  if (!exists_internal(path)) {
-     return mkdir(path, 0700);
-    }
-    return 1;
+static int8_t makeDirectory_internal(char* path) {
+  if (mkdir(path, 0700) != 0) {
+    perror("Couldn't make directory");
+    return 0;
+  }
+  return 1;
 }
 
 static ValeStr* readFileAsString_internal(char* filename) {
@@ -163,6 +164,12 @@ static stdlib_StrArray* iterdir_internal(char* dirPath) {
   d = opendir(dirPath);
   if (d) {
       while((dir = readdir(d)) != NULL){
+          if (strcmp(".", dir->d_name) == 0) {
+            continue;
+          }
+          if (strcmp("..", dir->d_name) == 0) {
+            continue;
+          }
           int64_t length = strlen(dir->d_name);
           ValeStr* path_name = ValeStrNew(length);
           strcpy(path_name->chars, dir->d_name);
@@ -222,8 +229,8 @@ extern int8_t stdlib_is_dir(ValeStr* path) {
   return result;
 }
 
-extern ValeInt stdlib_makeDirectory(ValeStr* path) {
-  long result = makeDirectory_internal(path->chars);
+extern int8_t stdlib_makeDirectory(ValeStr* path) {
+  int8_t result = makeDirectory_internal(path->chars);
   free(path);
   return result;
 }

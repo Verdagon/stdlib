@@ -50,7 +50,7 @@ int64_t stdlib_launch_command(stdlib_StrArray* chain) {
     perror("command creation failed");
     return 0;
   }
-  out = (unsigned long)subproc;
+  out = (unsigned long long)subproc;
   printf("bork %d, %lld\n", __LINE__, out);
   free(args);
   free(chain);

@@ -37,16 +37,24 @@ static int8_t is_file_internal(char* path) {
 #endif
 }
 
-static int8_t exists_internal(char* path) {
+static int8_t exists_internal(char* relativePath) {
 #ifdef _WIN32
+
+  char absolutePath[MAX_PATH];
+  int length = GetFullPathNameA(relativePath->chars, MAX_PATH, absolutePath, NULL);
+  if (length == 0) {
+    fprintf(stderr, "resolve: GetFullPathNameA failed for input \"%s\", error %ld\n", relative_path->chars, GetLastError());
+    exit(1);
+  }
+
   WIN32_FIND_DATA FindFileData;
-  HANDLE handle = FindFirstFile(path, &FindFileData) ;
+  HANDLE handle = FindFirstFile(absolutePath, &FindFileData) ;
   int found = handle != INVALID_HANDLE_VALUE;
   if (found) {
     //FindClose(&handle); this will crash
     FindClose(handle);
   }
-  printf("exists? %s: %d\n", path, found);
+  printf("exists? %s: %d\n", absolutePath, found);
   return found;
 #else
   if (!is_file_internal(path)) {

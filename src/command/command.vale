@@ -30,10 +30,8 @@ fn Subprocess(command str, args &List<str>) Result<Subprocess, str> {
 
 fn FindProgramInPath(relative_program str) Opt<str> {
   path_env_var = get_env_var("PATH");
-  separator = if (IsWindows()) { ";" } else { ":" };
-  paths = path_env_var.split(separator);
+  paths = path_env_var.split(GetPathSeparator());
   println("path_env_var {path_env_var}");
-  println("separator {separator}");
   if (paths.len() > 0) {
     println("first path {paths.get(0)}");
   }
@@ -44,7 +42,7 @@ fn FindProgramInPath(relative_program str) Opt<str> {
       programs_at_path = iterdir(path.str());
       each (&programs_at_path) (program_at_path){
         if (program_at_path == relative_program){
-          set program = path + "/" + relative_program;
+          set program = path + GetPathSeparator() + relative_program;
         }
       }
     }

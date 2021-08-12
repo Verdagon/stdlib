@@ -133,7 +133,7 @@ fn clone(self &Path) Path {
 fn /(path &Path, segment str) Path {
   new_path = path.clone();
 
-  new_segments = segment.split("/");
+  new_segments = segment.split(GetPathSeparator());
   new_segments.each((new_segment){
     if (new_segment.len() > 0) {
       new_path.segments!.add(new_segment.str());

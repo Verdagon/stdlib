@@ -6,12 +6,19 @@ import stdlib.path.*;
 fn main() export {
   suite = TestSuite();
 
+  println("zork 1");
   test_directory = Path("./test_tmp/" + UnixTimestamp().str() + "/bork");
+  println("zork 2");
   test_directory.makeDirectories();
+  println("zork 3");
   test_file = test_directory./("myfile.txt");
+  println("zork 4");
   test_file.writeString("hello");
+  println("zork 5");
   test_directory./("a.txt").writeString("a");
+  println("zork 6");
   test_directory./("b.txt").writeString("b");
+  println("zork 7");
 
   suite!.sub("makeDirectories", (sts){
     sts!.test("basic", {

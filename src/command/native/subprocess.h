@@ -653,6 +653,8 @@ int subprocess_create_ex(const char *const commandLine[], int options,
 
   commandLineCombined[len] = '\0';
 
+  printf("combined command line:\n%s\n", commandLineCombined);
+
   if (!CreateProcessA(
           SUBPROCESS_NULL,
           commandLineCombined, // command line

@@ -43,7 +43,7 @@ static int8_t exists_internal(char* relativePath) {
   char absolutePath[MAX_PATH];
   int length = GetFullPathNameA(relativePath, MAX_PATH, absolutePath, NULL);
   if (length == 0) {
-    fprintf(stderr, "resolve: GetFullPathNameA failed for input \"%s\", error %ld\n", relative_path->chars, GetLastError());
+    fprintf(stderr, "resolve: GetFullPathNameA failed for input \"%s\", error %ld\n", relativePath, GetLastError());
     exit(1);
   }
 
@@ -54,7 +54,6 @@ static int8_t exists_internal(char* relativePath) {
     //FindClose(&handle); this will crash
     FindClose(handle);
   }
-  printf("exists? %s: %d\n", absolutePath, found);
   return found;
 #else
   if (!is_file_internal(path)) {
@@ -150,10 +149,9 @@ static int8_t iterdir_internal(stdlib_PathRef path, char* dirPath, stdlib_PathLi
   HANDLE hFind = NULL; 
 
   //Specify a file mask. *.* = We want everything! 
-  wchar_t searchPath[2048] = { 0 };
+  char searchPath[2048] = { 0 };
   sprintf(searchPath, "%s\\*.*", dirPath); 
 
-  printf("doing find first file for: '%s' '%s'\n", dirPath, searchPath);
   if ((hFind = FindFirstFile(searchPath, &fdFile)) == INVALID_HANDLE_VALUE) {
     fprintf(stderr, "Path not found: [%s]\n", dirPath);
     return 0;
@@ -162,9 +160,8 @@ static int8_t iterdir_internal(stdlib_PathRef path, char* dirPath, stdlib_PathLi
   do {
     //Find first file will always return "."
     //    and ".." as the first two directories. 
-    if (wcscmp(fdFile.cFileName, L".") != 0 &&
-        wcscmp(fdFile.cFileName, L"..") != 0) {
-      printf("adding path: %s\n", fdFile.cFileName);
+    if (strcmp(fdFile.cFileName, ".") != 0 &&
+        strcmp(fdFile.cFileName, "..") != 0) {
       stdlib_AddToPathChildList(path, destinationList, ValeStrFrom(fdFile.cFileName));
     }
   } while (FindNextFile(hFind, &fdFile)); //Find the next file.
@@ -176,7 +173,7 @@ static int8_t iterdir_internal(stdlib_PathRef path, char* dirPath, stdlib_PathLi
   struct dirent *dir;
   d = opendir(dirPath);
   if (d == 0) {
-    printf("cannot open directory: %s\n", dirPath);
+    fprintf(stderr, "cannot open directory: %s\n", dirPath);
     return 0;
   }
 
@@ -189,7 +186,6 @@ static int8_t iterdir_internal(stdlib_PathRef path, char* dirPath, stdlib_PathLi
   closedir(d); 
 #endif
 
-  printf("done with iterdir_internal!\n");
   return 1;
 }
 
@@ -215,10 +211,8 @@ extern void stdlib_writeStringToFile(ValeStr* filenameVStr, ValeStr* contentsVSt
 }
 
 extern int8_t stdlib_iterdir(stdlib_PathRef path, ValeStr* pathStr, stdlib_PathListRef destinationList) {
-  printf("in stdlib_iterdir\n");
   int8_t result = iterdir_internal(path, pathStr->chars, destinationList);
   free(pathStr);
-  printf("done with stdlib_iterdir\n");
   return result;
 }
 
@@ -283,16 +277,12 @@ extern ValeStr* stdlib_resolve(ValeStr* relative_path) {
     realpath_input = relative_path_with_home_replaced;
   }
 
-  printf("realpath input: %s\n", realpath_input);
-
   char* absolute_path = realpath(realpath_input, NULL);
   if (absolute_path == NULL) {
     fprintf(stderr, "resolve: Realpath failed for input \"%s\": ", realpath_input);
     perror("");
     exit(1);
   }
-
-  printf("absolute path: %s\n", absolute_path);
 
   ValeStr* result = ValeStrFrom(absolute_path);
   free(absolute_path);

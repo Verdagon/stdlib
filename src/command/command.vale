@@ -31,10 +31,6 @@ fn Subprocess(command str, args &List<str>) Result<Subprocess, str> {
 fn FindProgramInPath(relative_program str) Opt<Path> {
   path_env_var = get_env_var("PATH");
   paths = path_env_var.split(GetEnvPathSeparator());
-  println("path_env_var {path_env_var}");
-  if (paths.len() > 0) {
-    println("first path {paths.get(0)} num paths {paths.len()}");
-  }
 
   maybe_found_program_path Opt<Path> = None<Path>();
   if (Path(relative_program).exists()) {
@@ -44,7 +40,6 @@ fn FindProgramInPath(relative_program str) Opt<Path> {
     while (i < paths.len() and maybe_found_program_path.isEmpty()) {
       path = paths.get(i);
       possible_program_path = Path(path.str())./(relative_program);
-      println("checking " + possible_program_path.str());
       if (possible_program_path.exists()) {
         set maybe_found_program_path = Some(possible_program_path.clone());
       }
@@ -52,7 +47,6 @@ fn FindProgramInPath(relative_program str) Opt<Path> {
     }
   }
 
-  println("done with FindProgramInPath, found?: {not maybe_found_program_path.isEmpty()}");
   ret maybe_found_program_path;
 }
 
@@ -91,7 +85,6 @@ fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str
   }
 
   command_str = command_str_builder.str();
-  println("Starting command: " + command_str);
 
   cmd_array = cmdlist.toImmArray();
 
@@ -101,7 +94,6 @@ fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str
   }
 
   retval = Subprocess(command_str, handle);
-  println("Started command!");
   ret Ok<Subprocess, str>(retval);
 }
 
@@ -110,15 +102,12 @@ fn consume_and_join<StdoutConsumer, StderrConsumer>(
   stdout_consumer StdoutConsumer,
   stderr_consumer StderrConsumer)
 int {
-  println("in consume_and_join");
   running = true;
   while (running) {
     stdout_consumed_anything = false;
     stdout_consuming = true;
     while (stdout_consuming) {
-      println("doing read_stdout");
       s = self.read_stdout(1000);
-      println("got some stdout");
       if (s.len() > 0) {
         (&!stdout_consumer)(s);
         set stdout_consumed_anything = true;
@@ -130,9 +119,7 @@ int {
     stderr_consumed_anything = false;
     stderr_consuming = true;
     while (stderr_consuming) {
-      println("doing read_stderr");
       s = self.read_stderr(1000);
-      println("got some stderr");
       if (s.len() > 0) {
         (&!stderr_consumer)(s);
         set stderr_consumed_anything = true;
@@ -142,28 +129,22 @@ int {
     }
 
     if (not stdout_consumed_anything and not stderr_consumed_anything and not self.alive()) {
-      println("stopping loop");
       set running = false;
     }
   }
-  println("done consume_and_join");
 
   ret join(self);
 }
 
 fn print_and_join(self Subprocess) int {
-  println("in print_and_join");
   x = consume_and_join(
     self,
     &!(stdout_chunk){
-      println("reading stdout chunk");
       print(stdout_chunk);
     },
     &!(stderr_chunk){
-      println("reading stderr chunk");
       print(stderr_chunk);
     });
-  println("done print_and_join");
   ret x;
 }
 
@@ -185,11 +166,8 @@ fn capture_and_join(self Subprocess) ExecResult {
 }
 
 fn join(self Subprocess) int {
-  println("in join");
   status = join(self.handle);
-  println("calling destroy");
   destroy(self.handle);
-  println("done join");
   ret status;
 }
 
@@ -203,7 +181,6 @@ fn read_all_stdout(self &Subprocess) str {
   running = true;
   while (running) {
     s = self.read_stdout(1000);
-    println("Got some stdout, len {s.len()} alive {self.alive()}");
     builder!.print(s);
     if (s.len() == 0 and not self.alive()) {
       set running = false;

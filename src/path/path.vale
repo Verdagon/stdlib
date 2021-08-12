@@ -65,8 +65,10 @@ fn directory(path &Path) Path {
 
 fn Path(s str) Path {
   segments = List<str>();
-  s.split(GetPathSeparator()).each((segment){
-    segments!.add(segment.str());
+  s.split("/").each((a){
+    a.split("\\").each((b){
+      segments!.add(b.str());
+    });
   });
   // If it ends in a / there will be an empty string at the end, remove it.
   if (segments.get(segments.len() - 1) == "") {
@@ -150,12 +152,10 @@ fn /(path &Path, segment str) Path {
 
 fn iterdir(path &Path) List<Path> {
   destination_list = List<Path>();
-  println("in iterdir!");
   success = iterdir(path, path.str(), &!destination_list);
   if (not success) {
     panic("iterdir failed!");
   }
-  println("done with iterdir!");
   ret destination_list;
 }
 

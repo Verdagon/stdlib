@@ -40,35 +40,28 @@ char** stdlib_vale_to_char_arr(stdlib_StrArray* chains) {
 
 int64_t stdlib_launch_command(stdlib_StrArray* chain) {
   int64_t out = 0;
-  const char** args = (const char**)stdlib_vale_to_char_arr(chain);
-  printf("args:\n");
-  for (int i = 0; args[i]; i++) {
-    printf("arg %d: %s\n", i, args[i]);
-  }
+  char** args = (char**)stdlib_vale_to_char_arr(chain);
+  // printf("args:\n");
+  // for (int i = 0; args[i]; i++) {
+  //   printf("arg %d: %s\n", i, args[i]);
+  // }
   struct subprocess_s* subproc = malloc(sizeof(struct subprocess_s));
   if(subprocess_create(args, subprocess_option_inherit_environment, subproc) != 0){
     perror("command creation failed");
     return 0;
   }
   out = (unsigned long long)subproc;
-  printf("bork %d, %lld\n", __LINE__, out);
   free(args);
   free(chain);
   return out;
 }
 
 ValeStr* stdlib_read_stdout(int64_t cmd, long bytes) {
-  printf("zork %d\n", __LINE__);
   ValeStr* out = ValeStrNew(bytes+1); 
-  printf("zork %d, %lld\n", __LINE__, cmd);
   FILE* stdout_handle = subprocess_stdout((struct subprocess_s*)cmd); 
-  printf("zork %d\n", __LINE__);
   long read_len = read_into_buffer(out->chars, bytes, stdout_handle);
-  printf("zork %d\n", __LINE__);
   out->chars[bytes] = '\0'; 
-  printf("zork %d\n", __LINE__);
   out->length = read_len;
-  printf("zork %d\n", __LINE__);
   //fclose(stdout_handle);
   return out;
 }

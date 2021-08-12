@@ -275,12 +275,17 @@ extern ValeStr* stdlib_resolve(ValeStr* relative_path) {
     realpath_input = relative_path_with_home_replaced;
   }
 
+  printf("realpath input: %s\n", realpath_input);
+
   char* absolute_path = realpath(realpath_input, NULL);
   if (absolute_path == NULL) {
     fprintf(stderr, "resolve: Realpath failed for input \"%s\": ", realpath_input);
     perror("");
     exit(1);
   }
+
+  printf("absolute path: %s\n", absolute_path);
+
   ValeStr* result = ValeStrFrom(absolute_path);
   free(absolute_path);
   return result;

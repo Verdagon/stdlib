@@ -21,6 +21,7 @@ fn main() export {
 
   suite!.sub("resolve", (sts){
     sts!.test("basic", {
+      println("in resolve test");
       test_directory.resolve().str() should_not_equal test_directory.str();
     });
   });

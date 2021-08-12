@@ -46,6 +46,7 @@ static int8_t exists_internal(char* path) {
     //FindClose(&handle); this will crash
     FindClose(handle);
   }
+  printf("exists? %s: %d\n", path, found);
   return found;
 #else
   if (!is_file_internal(path)) {

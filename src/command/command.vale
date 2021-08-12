@@ -28,7 +28,7 @@ fn Subprocess(command str, args &List<str>) Result<Subprocess, str> {
   ret Subprocess(command, &newlist);
 }
 
-fn FindProgramInPath(relative_program str) Opt<str> {
+fn FindProgramInPath(relative_program str) Opt<Path> {
   path_env_var = get_env_var("PATH");
   paths = path_env_var.split(GetEnvPathSeparator());
   println("path_env_var {path_env_var}");
@@ -36,26 +36,24 @@ fn FindProgramInPath(relative_program str) Opt<str> {
     println("first path {paths.get(0)} num paths {paths.len()}");
   }
 
-  program = "";
-  if (not exists(relative_program)) {
-     each (&paths) (path){
-      child_paths = path.str().Path().iterdir();
-      each (&child_paths) (child_path){
-        if (child_path.name() == relative_program){
-          set program = path + GetPathSeparator() + relative_program;
-        }
-      }
-    }
+  maybe_found_program_path Opt<Path> = None<Path>();
+  if (Path(relative_program).exists()) {
+    set maybe_found_program_path = Some(Path(relative_program));
   } else {
-    set program = relative_program;
+    i = 0;
+    while (i < paths.len() and maybe_found_program_path.isEmpty()) {
+      path = paths.get(i);
+      possible_program_path = Path(path.str())./(relative_program);
+      println("checking " + possible_program_path.str());
+      if (possible_program_path.exists()) {
+        set maybe_found_program_path = Some(possible_program_path.clone());
+      }
+      set i = i + 1;
+    }
   }
 
-  if (program == "") {
-    println("done with FindProgramInPath, returning none");
-    ret None<str>();
-  }
-  println("done with FindProgramInPath, returning {program}");
-  ret Some<str>(program);
+  println("done with FindProgramInPath, found?: {not maybe_found_program_path.isEmpty()}");
+  ret maybe_found_program_path;
 }
 
 fn PrintCommandLinePart(builder &!StringBuilder, part StrSlice) {
@@ -71,21 +69,21 @@ fn PrintCommandLinePart(builder &!StringBuilder, part StrSlice) {
 fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str> {
   paths = get_env_var("PATH").split(":");
 
-  maybe_program = FindProgramInPath(relative_program);
+  maybe_program_path = FindProgramInPath(relative_program);
 
-  if (maybe_program.isEmpty()) {
+  if (maybe_program_path.isEmpty()) {
     panic("Unable to find program {relative_program}.");
   }
-  program = (maybe_program).get();
-  if (is_dir(program)) {
+  program_path = (maybe_program_path).get();
+  if (program_path.is_dir()) {
     panic("Unable to execute {relative_program}, is a directory.");
   }
 
   command_str_builder = StringBuilder();
-  command_str_builder!.PrintCommandLinePart(program.slice());
+  command_str_builder!.PrintCommandLinePart(program_path.str().slice());
 
   cmdlist! = List<str>();
-  cmdlist!.add(program);
+  cmdlist!.add(program_path.str());
   each (&args) (arg){
     command_str_builder!.print(" ");
     command_str_builder!.PrintCommandLinePart(arg);

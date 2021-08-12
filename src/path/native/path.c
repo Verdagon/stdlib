@@ -158,7 +158,7 @@ static int8_t iterdir_internal(stdlib_PathRef path, char* dirPath, stdlib_PathLi
       printf("adding path: %s\n", fdFile.cFileName);
       stdlib_AddToPathChildList(path, destinationList, ValeStrFrom(fdFile.cFileName));
     }
-  } while(FindNextFile(hFind, &fdFile)); //Find the next file.
+  } while (FindNextFile(hFind, &fdFile)); //Find the next file.
 
   FindClose(hFind); //Always, Always, clean things up!
 

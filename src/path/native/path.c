@@ -41,7 +41,7 @@ static int8_t exists_internal(char* relativePath) {
 #ifdef _WIN32
 
   char absolutePath[MAX_PATH];
-  int length = GetFullPathNameA(relativePath->chars, MAX_PATH, absolutePath, NULL);
+  int length = GetFullPathNameA(relativePath, MAX_PATH, absolutePath, NULL);
   if (length == 0) {
     fprintf(stderr, "resolve: GetFullPathNameA failed for input \"%s\", error %ld\n", relative_path->chars, GetLastError());
     exit(1);

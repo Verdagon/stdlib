@@ -41,6 +41,10 @@ char** stdlib_vale_to_char_arr(stdlib_StrArray* chains) {
 int64_t stdlib_launch_command(stdlib_StrArray* chain) {
   int64_t out = 0;
   const char** args = (const char**)stdlib_vale_to_char_arr(chain);
+  printf("args:\n");
+  for (int i = 0; args[i]; i++) {
+    printf("arg %d: %s\n", i, args[i]);
+  }
   struct subprocess_s* subproc = malloc(sizeof(struct subprocess_s));
   if(subprocess_create(args, subprocess_option_inherit_environment, subproc) != 0){
     perror("command creation failed");

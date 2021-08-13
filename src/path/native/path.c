@@ -56,13 +56,13 @@ static int8_t exists_internal(char* relativePath) {
   }
   return found;
 #else
-  if (!is_file_internal(path)) {
-    DIR* dir = opendir(path);
+  if (!is_file_internal(relativePath)) {
+    DIR* dir = opendir(relativePath);
     int8_t retval = dir ? 1 : 0;
     if (retval) { closedir(dir); }
     return retval;
   } else {
-    FILE* file = fopen(path, "r");
+    FILE* file = fopen(relativePath, "r");
     int8_t retval = file ? 1 : 0; 
     if (retval) { fclose(file); }
     return retval;

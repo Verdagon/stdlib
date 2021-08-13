@@ -46,7 +46,7 @@ int64_t stdlib_launch_command(stdlib_StrArray* chain) {
   //   printf("arg %d: %s\n", i, args[i]);
   // }
   struct subprocess_s* subproc = malloc(sizeof(struct subprocess_s));
-  if(subprocess_create(args, subprocess_option_inherit_environment, subproc) != 0){
+  if(subprocess_create((const char**)args, subprocess_option_inherit_environment, subproc) != 0){
     perror("command creation failed");
     return 0;
   }

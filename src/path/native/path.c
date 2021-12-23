@@ -27,6 +27,10 @@
 #include "stdlib/PathList.h"
 #include "stdlib/AddToPathChildList.h"
 
+// We have both is_file_internal and is_directory_internal because they aren't
+// exactly inverses of each other... a symbolic link on unix will return false
+// for both.
+
 static int8_t is_file_internal(char* path) {
 #ifdef _WIN32
   return (GetFileAttributes(path) & FILE_ATTRIBUTE_DIRECTORY) == 0;
@@ -34,6 +38,16 @@ static int8_t is_file_internal(char* path) {
   struct stat path_stat;
   stat(path, &path_stat);
   return S_ISREG(path_stat.st_mode);
+#endif
+}
+
+static int8_t is_directory_internal(char* path) {
+#ifdef _WIN32
+  return !!(GetFileAttributes(path) & FILE_ATTRIBUTE_DIRECTORY);
+#else
+  struct stat path_stat;
+  stat(path, &path_stat);
+  return S_ISDIR(path_stat.st_mode);
 #endif
 }
 
@@ -56,7 +70,7 @@ static int8_t exists_internal(char* relativePath) {
   }
   return found;
 #else
-  if (!is_file_internal(relativePath)) {
+  if (is_directory_internal(relativePath)) {
     DIR* dir = opendir(relativePath);
     int8_t retval = dir ? 1 : 0;
     if (retval) { closedir(dir); }
@@ -70,10 +84,14 @@ static int8_t exists_internal(char* relativePath) {
 #endif
 }
 
-static int8_t makeDirectory_internal(char* path) {
+static int8_t makeDirectory_internal(char* path, char allow_already_existing) {
   if (mkdir(path, 0700) != 0) {
-    perror("Couldn't make directory");
-    return 0;
+    if (allow_already_existing && errno == EEXIST) {
+      // fine, continue
+    } else {
+      perror("Couldn't make directory");
+      return 0;
+    }
   }
   return 1;
 }
@@ -223,13 +241,13 @@ extern int8_t stdlib_is_file(ValeStr* path) {
 }
 
 extern int8_t stdlib_is_dir(ValeStr* path) {
-  long result = !is_file_internal(path->chars);
+  long result = is_directory_internal(path->chars);
   free(path);
   return result;
 }
 
-extern int8_t stdlib_makeDirectory(ValeStr* path) {
-  int8_t result = makeDirectory_internal(path->chars);
+extern int8_t stdlib_makeDirectory(ValeStr* path, int8_t allow_already_existing) {
+  int8_t result = makeDirectory_internal(path->chars, allow_already_existing);
   free(path);
   return result;
 }

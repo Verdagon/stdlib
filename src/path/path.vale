@@ -1,7 +1,7 @@
 import stdlib.collections.*;
 
-export Array<imm, final, str> as StrArray;
-export Array<mut, vary, str> as MutStrArray;
+export Array<imm, str> as StrArray;
+export Array<mut, str> as MutStrArray;
 
 
 export List<Path> as PathList;
@@ -25,20 +25,20 @@ fn is_file(path &Path) bool {
   is_file(path.str())
 }
 
-fn makeDirectory(path &Path) bool {
-  makeDirectory(path.str())
+fn makeDirectory(path &Path, allow_already_existing bool) bool {
+  makeDirectory(path.str(), allow_already_existing)
 }
 
-fn makeDirectories(path &Path) bool {
+fn makeDirectories(path &Path, allow_already_existing bool) bool {
   if (path.segments.len() == 0) {
     ret false;
   }
   if (not path.exists()) {
     // Recurse
-    if (not makeDirectories(&path.parent())) {
+    if (not makeDirectories(&path.parent(), allow_already_existing)) {
       ret false;
     }
-    if (not path.makeDirectory()) {
+    if (not path.makeDirectory(allow_already_existing)) {
       ret false;
     }
   }
@@ -74,7 +74,7 @@ fn Path(s str) Path {
   if (segments.get(segments.len() - 1) == "") {
     segments!.remove(segments.len() - 1);
   }
-  vassert(segments.len() > 0);
+  vassert(segments.len() > 0, "Path is empty!");
   ret Path(segments);
 }
 
@@ -174,5 +174,5 @@ fn is_dir(value str) bool extern;
 fn is_file(value str) bool extern;
 fn exists(path str) bool extern;
 fn iterdir(path &Path, path_str str, destination_list &!List<Path>) bool extern;
-fn makeDirectory(path str) bool extern;
+fn makeDirectory(path str, allow_already_existing bool) bool extern;
 fn resolve(path str) str extern;

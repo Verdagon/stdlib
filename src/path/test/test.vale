@@ -9,7 +9,7 @@ fn main() export {
   println("zork 1");
   test_directory = Path("./test_tmp/" + UnixTimestamp().str() + "/bork");
   println("zork 2");
-  test_directory.makeDirectories();
+  test_directory.makeDirectories(true);
   println("zork 3");
   test_file = test_directory./("myfile.txt");
   println("zork 4");

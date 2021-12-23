@@ -20,7 +20,7 @@ rules(A Ref(_, _, [<_, _> _ * _])) {
 }
 
 fn each<A, F>(arr A, func F) void
-rules(A Ref(_, _, Array<_, _, _>)) {
+rules(A Ref(_, _, Array<_, _>)) {
   i! = 0;
   l = len(&arr);
   while (i < l) {
@@ -30,7 +30,7 @@ rules(A Ref(_, _, Array<_, _, _>)) {
 }
 
 fn eachI<A, F>(arr A, func F) void
-rules(A Ref(_, _, Array<_, _, _>)) {
+rules(A Ref(_, _, Array<_, _>)) {
   i! = 0;
   l = len(&arr);
   while (i < l) {

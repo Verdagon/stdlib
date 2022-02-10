@@ -1,40 +1,35 @@
 
-fn each<A, F>(arr A, func F) void
-rules(A Ref(_, _, [<_, _> _ * _])) {
-  i! = 0;
-  l = len(&arr);
-  while (i < l) {
-    func!(arr[i]);
-    set i = i + 1;
+struct StaticSizedArrayIter<N, M, V, E> where E Ref {
+  arr &[#N]<M, V>E;
+  pos! int;
+}
+
+fn begin<N, M, V, E>(arr &[#N]<M, V>E) StaticSizedArrayIter<N, M, V, E> {
+  StaticSizedArrayIter<N, M, V, E>(arr, 0)
+}
+
+fn next<N, M, V, E>(iter &!StaticSizedArrayIter<N, M, V, E>) Opt<&E> {
+  if iter.pos < iter.arr.len() {
+    Some<&E>(&iter.arr[set iter.pos = iter.pos + 1])
+  } else {
+    None<&E>()
   }
 }
 
-fn eachI<A, F>(arr A, func F) void
-rules(A Ref(_, _, [<_, _> _ * _])) {
-  i! = 0;
-  l = len(&arr);
-  while (i < l) {
-    func!(i, arr[i]);
-    set i = i + 1;
-  }
+
+struct RuntimeSizedArrayIter<M, E> where E Ref {
+  arr &[]<M>E;
+  pos! int;
 }
 
-fn each<A, F>(arr A, func F) void
-rules(A Ref(_, _, Array<_, _>)) {
-  i! = 0;
-  l = len(&arr);
-  while (i < l) {
-    func!(arr[i]);
-    set i = i + 1;
-  }
+fn begin<M, E>(arr &[]<M>E) RuntimeSizedArrayIter<M, E> {
+  RuntimeSizedArrayIter<M, E>(arr, 0)
 }
 
-fn eachI<A, F>(arr A, func F) void
-rules(A Ref(_, _, Array<_, _>)) {
-  i! = 0;
-  l = len(&arr);
-  while (i < l) {
-    func!(i, arr[i]);
-    set i = i + 1;
+fn next<M, E>(iter &!RuntimeSizedArrayIter<M, E>) Opt<&E> {
+  if iter.pos < iter.arr.len() {
+    Some<&E>(&iter.arr[set iter.pos = iter.pos + 1])
+  } else {
+    None<&E>()
   }
 }

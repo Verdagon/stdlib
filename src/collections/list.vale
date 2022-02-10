@@ -1,6 +1,6 @@
 import panicutils.*;
 
-struct List<E> rules(E Ref) {
+struct List<E> where E Ref {
   array! Array<mut, E>;
 }
 
@@ -12,25 +12,24 @@ fn List<E>() List<E> {
   List<E>(0)
 }
 
-fn List<E>(arr &Array<_, _, E>) List<E> {
+fn List<E, M>(arr &Array<M, E>) List<E> {
   list = List<E>();
-  arr each (elem){
+  foreach elem in arr {
     list!.add(elem);
-  };
-  = list;
+  }
+  list
 }
 
-fn List<E>(arr [<_> _ * E]) List<E> {
+fn List<E, M, V, N>(arr [#N]<M, V>E) List<E> {
   list = List<E>(arr.len());
   migrate(arr, &!list.array);
   ret list;
 }
 
-fn void() {}
 fn len<E>(list &List<E>) int { len(&list.array) }
 fn add<E>(list &!List<E>, newElement E) {
   oldCapacity = list.array.capacity();
-  if (list.len() == oldCapacity) {
+  if list.len() == oldCapacity {
     newCapacity = if (oldCapacity > 0) { oldCapacity * 2 } else { 1 };
     newArray = Array<mut, E>(newCapacity);
     oldArray = set list.array = newArray;
@@ -40,26 +39,26 @@ fn add<E>(list &!List<E>, newElement E) {
 }
 fn get<E>(list &List<E>, index int) &E {
   a = list.array;
-  = a[index];
+  a[index]
 }
 // Perhaps we can find a way to make a function generic over permission?
-fn get<E>(list &!List<E>, index int) &!E {
+fn get<E>(list &!List<E>, index int) infer-ret {
   a = list.array;
-  = a[index];
+  a[index]
 }
 
 fn set<E>(list &!List<E>, index int, value E) E {
   set list.array[index] = value
 }
 
-//fn toArray<E>(list &List<E>) Array<mut, E> {
-//  MakeArray(list.len(), *!(i){ list.get(i) })
-//}
+fn toArray<E>(list &List<E>) Array<mut, E> {
+  toVaryArray(list)
+}
 fn toVaryArray<E>(list &List<E>) Array<mut, E> {
-  Array<mut, E>(list.len(), &!(i){ list.get(i) })
+  Array<mut, E>(list.len(), &!(i) => { list.get(i) })
 }
 fn toImmArray<E>(list &List<E>) Array<imm, E> {
-  MakeImmArray(list.len(), &!(i){ list.get(i) })
+  Array<imm, E>(list.len(), &!(i) => { list.get(i) })
 }
 //fn toList<E>(arr *Array<_, E>) List<E> {
 //  list = List<E>();
@@ -70,46 +69,46 @@ fn toImmArray<E>(list &List<E>) Array<imm, E> {
 //}
 //
 //fn each<E, F>(list &List<E>, func F) void {
-//  i! = 0;
+//  i = 0;
 //  l = len(*list);
-//  while (i < l) {
+//  while i < l {
 //    func(list.get(i));
 //    set i = i + 1;
 //  }
 //}
 //
 //fn each<E, F>(list &!List<E>, func F) void {
-//  i! = 0;
+//  i = 0;
 //  l = len(*list);
-//  while (i < l) {
+//  while i < l {
 //    func(list.get(i));
 //    set i = i + 1;
 //  }
 //}
 //
 //fn eachI<E, F>(list &List<E>, func F) void {
-//  i! = 0;
+//  i = 0;
 //  l = len(*list);
-//  while (i < l) {
+//  while i < l {
 //    func(i, list.get(i));
 //    set i = i + 1;
 //  }
 //}
 //
 //fn eachI<E, F>(list &!List<E>, func F) void {
-//  i! = 0;
+//  i = 0;
 //  l = len(*list);
-//  while (i < l) {
+//  while i < l {
 //    func(i, list.get(i));
 //    set i = i + 1;
 //  }
 //}
 //
 //fn contains<E>(list &List<E>, element E) bool {
-//  i! = 0;
+//  i = 0;
 //  l = len(*list);
-//  while (i < l) {
-//    if (list.get(i) == element) {
+//  while i < l {
+//    if list.get(i) == element {
 //      ret true;
 //    }
 //    set i = i + 1;
@@ -119,16 +118,16 @@ fn toImmArray<E>(list &List<E>) Array<imm, E> {
 //
 //
 fn remove<E>(list &!List<E>, removeAtIndex int) E {
-  if (removeAtIndex < 0) {
+  if removeAtIndex < 0 {
     panic("Can't remove at negative index!");
   }
-  if (removeAtIndex >= list.len()) {
+  if removeAtIndex >= list.len() {
     panic("Can't remove, index out of bounds!");
   }
 
   temp! Opt<E> = Some<E>(list.array!.pop());
-  i! = list.len() - 1;
-  while (i >= removeAtIndex) {
+  i = list.len() - 1;
+  while i >= removeAtIndex {
     set temp = Some(set list.array[i] = (set temp = None<E>()).get());
     set i = i - 1;
   }
@@ -149,7 +148,7 @@ fn remove<E>(list &!List<E>, removeAtIndex int) E {
 //}
 //fn len<E>(list &List<E>) int { list.size }
 //fn add<E>(list &!List<E>, newElement E) {
-//  if (list.size == list.len()) {
+//  if list.size == list.len() {
 //    newLen = if (len(&list) == 0) { 1 } else { len(&list) * 2 };
 //    newArray =
 //       [vary *](newLen, &!IFunction1<mut, int, Opt<E>>((index){
@@ -174,11 +173,10 @@ fn remove<E>(list &!List<E>, removeAtIndex int) E {
 //fn toArray<E>(list &List<E>) Array<mut, E> {
 //  [*](list.len(), &!(i){ list.get(i) })
 //}
-//fn toVaryArray<E>(list List<E>) Array<mut, E> {
-//  [vary *](list.len(), &!(i){
-//    = (set list.array[i] = None<E>()).get();
-//  })
-//}
+fn toVaryArray<E>(list List<E>) []<mut>E {
+  [arr] = list;
+  ret arr;
+}
 //fn toImmArray<E>(list &List<E>) Array<imm, E> {
 //  [imm *](list.len(), &!(i){ list.get(i) })
 //}
@@ -191,38 +189,68 @@ fn remove<E>(list &!List<E>, removeAtIndex int) E {
 //  = list;
 //}
 
-fn each<E, F>(list &List<E>, func F) void {
-  i! = 0;
+fn each<E, F>(list &List<E>, func F) void
+where
+    F Ref(_, rw, _),
+    Prot("__call", Refs(&!F, &E), void) {
+  i = 0;
   l = len(&list);
-  while (i < l) {
-    func!(list.get(i));
+  while i < l {
+    func!(&list.get(i));
     set i = i + 1;
   }
 }
 
-fn each<E, F>(list &!List<E>, func F) void {
-  i! = 0;
+fn each_with_index<E, F>(list &List<E>, func F) void
+where
+    F Ref(_, rw, _),
+    Prot("__call", Refs(&!F, int, &E), void) {
+  i = 0;
   l = len(&list);
-  while (i < l) {
-    func!(list.get(i));
+  while i < l {
+    func!(i, &list.get(i));
+    set i = i + 1;
+  }
+}
+
+fn each<E, F>(list &!List<E>, func F) void
+where
+    F Ref(_, rw, _),
+    Prot("__call", Refs(&!F, &!E), void) {
+  i = 0;
+  l = len(&list);
+  while i < l {
+    func!(list!.get(i));
+    set i = i + 1;
+  }
+}
+
+fn each_with_index<E, F>(list &!List<E>, func F) void
+where
+    F Ref(_, rw, _),
+    Prot("__call", Refs(&!F, int, &!E), void) {
+  i = 0;
+  l = len(&list);
+  while i < l {
+    func!(i, list!.get(i));
     set i = i + 1;
   }
 }
 
 //fn enumerate<E, F>(self &List<E>, func F) void {
-//  i! = 0;
+//  i = 0;
 //  l = self.len();
-//  while (i < l) {
+//  while i < l {
 //    func!(self.get(i), i);
 //    set i = i + 1;
 //  }
 //}
 //
 //fn contains<E>(list &List<E>, element E) bool {
-//  i! = 0;
+//  i = 0;
 //  l = len(&list);
-//  while (i < l) {
-//    if (list.get(i) == element) {
+//  while i < l {
+//    if list.get(i) == element {
 //      ret true;
 //    }
 //    set i = i + 1;
@@ -232,16 +260,16 @@ fn each<E, F>(list &!List<E>, func F) void {
 //
 //
 //fn remove<E>(list &!List<E>, removeAtIndex int) E {
-//  if (removeAtIndex < 0) {
+//  if removeAtIndex < 0 {
 //    panic("Can't remove at negative index!");
 //  }
-//  if (removeAtIndex >= list.size) {
+//  if removeAtIndex >= list.size {
 //    panic("Can't remove, index out of bounds!");
 //  }
 //
-//  temp! = (mut list.array[list.size - 1] = None<E>());
-//  i! = list.size - 2;
-//  while (i >= removeAtIndex) {
+//  temp = (mut list.array[list.size - 1] = None<E>());
+//  i = list.size - 2;
+//  while i >= removeAtIndex {
 //    set temp = (mut list.array[i] = (mut temp = None<E>()));
 //    set i = i - 1;
 //  }
@@ -252,46 +280,46 @@ fn each<E, F>(list &!List<E>, func F) void {
 //}
 //
 //
-//fn join(list &List<str>) str { join(list, "") }
-//fn join(list &List<str>, joiner str) str {
-//  combined! = StringBuilder();
-//  first = true;
-//  list.each((x){
-//    if (not first) {
-//      combined!.print(joiner);
-//    }
-//    combined!.print(x);
-//    set first = false;
-//  });
-//  ret combined.str();
-//}
-//
-//fn join(list &List<StrSlice>) str { join(list, "") }
-//fn join(list &List<StrSlice>, joiner str) str {
-//  combined! = StringBuilder();
-//  first = true;
-//  list.each((x){
-//    if (not first) {
-//      combined!.print(joiner);
-//    }
-//    combined!.print(x);
-//    set first = false;
-//  });
-//  ret combined.str();
-//}
-//
-//fn map<E, F>(list &List<E>, func F) List<T>
-//rules(T Ref, Prot("__call", (&F, E), T)) {
-//  result = List<T>();
-//  list.each({ result!.add((func)(_)); });
-//  ret result;
-//}
-//
+fn join(list &List<str>) str { join(list, "") }
+fn join(list &List<str>, joiner str) str {
+  combined = StringBuilder();
+  first = true;
+  foreach x in list {
+    if not first {
+      combined!.print(joiner);
+    }
+    combined!.print(x);
+    set first = false;
+  }
+  ret combined.str();
+}
+
+fn join(list &List<StrSlice>) str { join(list, "") }
+fn join(list &List<StrSlice>, joiner str) str {
+  combined = StringBuilder();
+  first = true;
+  foreach x in list {
+    if not first {
+      combined!.print(joiner);
+    }
+    combined!.print(x);
+    set first = false;
+  }
+  ret combined.str();
+}
+
+fn map<E, F>(list &List<E>, func &!F) List<T>
+where T Ref, Prot("__call", Refs(&!F, E), T) {
+  result = List<T>();
+  list.each({ result!.add((func)!(_)); });
+  ret result;
+}
+
 //fn exists<E, F>(list &List<E>, func F) bool
 //rules(T Ref, Prot("__call", (&F, E), T)) {
 //  i = 0;
-//  while (i < list.len()) {
-//    if ((&!func)(list.get(i))) {
+//  while i < list.len() {
+//    if (&!func)(list.get(i)) {
 //      ret true;
 //    }
 //    set i = i + 1;
@@ -301,9 +329,9 @@ fn each<E, F>(list &!List<E>, func F) void {
 //
 //fn print<T>(list &List<T>) {
 //  print("List(");
-//  first! = true;
+//  first = true;
 //  each (&list) {
-//    if (not first) {
+//    if not first {
 //      print(", ");
 //    }
 //    set first = false;
@@ -328,6 +356,45 @@ fn add<T>(self ListBuilder<T>, newElement T) ListBuilder<T> {
   ret self;
 }
 fn build<T>(self ListBuilder<T>) List<T> {
-  (list) = self;
+  [list] = self;
   ret list;
+}
+
+
+
+
+struct ListReadonlyIter<E> where E Ref {
+  list_array &Array<mut, E>;
+  pos! int;
+}
+
+fn begin<E>(list &List<E>) ListReadonlyIter<E> {
+  ListReadonlyIter<E>(list.array, 0)
+}
+
+fn next<E>(iter &!ListReadonlyIter<E>) Opt<&E> {
+  if iter.pos < iter.list_array.len() {
+    Some<&E>(iter.list_array[set iter.pos = iter.pos + 1])
+  } else {
+    None<&E>()
+  }
+}
+
+
+
+struct ListIter<E> where E Ref {
+  list_array &!Array<mut, E>;
+  pos! int;
+}
+
+fn begin<E>(list &!List<E>) ListIter<E> {
+  ListIter<E>(&!list.array, 0)
+}
+
+fn next<E>(iter &!ListIter<E>) Opt<&!E> {
+  if iter.pos < iter.list_array.len() {
+    Some<&!E>(iter.list_array[set iter.pos = iter.pos + 1])
+  } else {
+    None<&!E>()
+  }
 }

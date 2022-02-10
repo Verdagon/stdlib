@@ -14,15 +14,15 @@ fn Subprocess(command str) Result<Subprocess, str> {
   list! = command.split(" ");
   cmd = str(list.get(0));
   newlist! = List<StrSlice>();
-  enumerate(&list, (element, index){
-    if (index != 0) { newlist!.add(list.get(index)); }
+  each_with_index(&list, (index, element) => {
+    if index != 0 { newlist!.add(list.get(index)); }
   });
   ret Subprocess(cmd, &newlist);
 }
 
 fn Subprocess(command str, args &List<str>) Result<Subprocess, str> {
   newlist! = List<StrSlice>();
-  each (&args) (element){
+  foreach element in args {
     newlist!.add(slice(element));
   }
   ret Subprocess(command, &newlist);
@@ -33,15 +33,15 @@ fn FindProgramInPath(relative_program str) Opt<Path> {
   path_strs = path_env_var.split(GetEnvPathSeparator());
 
   maybe_found_program_path Opt<Path> = None<Path>();
-  if (Path(relative_program).exists()) {
+  if Path(relative_program).exists() {
     set maybe_found_program_path = Some(Path(relative_program));
   } else {
     i = 0;
-    while (i < path_strs.len() and maybe_found_program_path.isEmpty()) {
+    while i < path_strs.len() and maybe_found_program_path.isEmpty() {
       path_str = path_strs.get(i);
-      if (path_str.len() > 0) {
+      if path_str.len() > 0 {
         possible_program_path = Path(path_str.str())./(relative_program);
-        if (possible_program_path.exists()) {
+        if possible_program_path.exists() {
           set maybe_found_program_path = Some(possible_program_path.clone());
         }
       }
@@ -53,7 +53,7 @@ fn FindProgramInPath(relative_program str) Opt<Path> {
 }
 
 fn PrintCommandLinePart(builder &!StringBuilder, part StrSlice) {
-  if (part.has(" ")) {
+  if part.has(" ") {
     builder!.print("\"");
     builder!.print(part.replaceAll("\"", "\\\""));
     builder!.print("\"");
@@ -70,11 +70,11 @@ fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str
   maybe_program_path = FindProgramInPath(relative_program);
 
 
-  if (maybe_program_path.isEmpty()) {
+  if maybe_program_path.isEmpty() {
     panic("Unable to find program {relative_program}.");
   }
   program_path = (maybe_program_path).get();
-  if (program_path.is_dir()) {
+  if program_path.is_dir() {
     panic("Unable to execute {relative_program}, is a directory.");
   }
 
@@ -85,7 +85,7 @@ fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str
 
   cmdlist! = List<str>();
   cmdlist!.add(program_path.str());
-  each (&args) (arg){
+  foreach arg in args {
     command_str_builder!.print(" ");
     command_str_builder!.PrintCommandLinePart(arg);
     cmdlist!.add(arg.str());
@@ -96,7 +96,7 @@ fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str
   cmd_array = cmdlist.toImmArray();
 
   handle = launch_command(cmd_array);
-  if (handle == 0i64) {
+  if handle == 0i64 {
     ret Err<Subprocess, str>("Failed to create command!");
   }
 
@@ -110,13 +110,13 @@ fn consume_and_join<StdoutConsumer, StderrConsumer>(
   stderr_consumer StderrConsumer)
 int {
   running = true;
-  while (running) {
+  while running {
     stdout_consumed_anything = false;
     stdout_consuming = true;
-    while (stdout_consuming) {
+    while stdout_consuming {
       s = self.read_stdout(1000);
-      if (s.len() > 0) {
-        (&!stdout_consumer)(s);
+      if s.len() > 0 {
+        (&!stdout_consumer)!(s);
         set stdout_consumed_anything = true;
       } else {
         set stdout_consuming = false;
@@ -125,17 +125,17 @@ int {
 
     stderr_consumed_anything = false;
     stderr_consuming = true;
-    while (stderr_consuming) {
+    while stderr_consuming {
       s = self.read_stderr(1000);
-      if (s.len() > 0) {
-        (&!stderr_consumer)(s);
+      if s.len() > 0 {
+        (&!stderr_consumer)!(s);
         set stderr_consumed_anything = true;
       } else {
         set stderr_consuming = false;
       }
     }
 
-    if (not stdout_consumed_anything and not stderr_consumed_anything and not self.alive()) {
+    if not stdout_consumed_anything and not stderr_consumed_anything and not self.alive() {
       set running = false;
     }
   }
@@ -146,10 +146,10 @@ int {
 fn print_and_join(self Subprocess) int {
   x = consume_and_join(
     self,
-    &!(stdout_chunk){
+    &!(stdout_chunk) => {
       print(stdout_chunk);
     },
-    &!(stderr_chunk){
+    &!(stderr_chunk) => {
       print(stderr_chunk);
     });
   ret x;
@@ -167,8 +167,8 @@ fn capture_and_join(self Subprocess) ExecResult {
   return_code =
       consume_and_join(
           self,
-          &!(stdout_chunk){ stdout_builder!.print(stdout_chunk); },
-          &!(stderr_chunk){ stderr_builder!.print(stderr_chunk); });
+          &!(stdout_chunk) => { stdout_builder!.print(stdout_chunk); },
+          &!(stderr_chunk) => { stderr_builder!.print(stderr_chunk); });
   ret ExecResult(return_code, stdout_builder.str(), stderr_builder.str());
 }
 
@@ -186,10 +186,10 @@ fn read_all_stdout(self &Subprocess) str {
   builder = StringBuilder();
 
   running = true;
-  while (running) {
+  while running {
     s = self.read_stdout(1000);
     builder!.print(s);
-    if (s.len() == 0 and not self.alive()) {
+    if s.len() == 0 and not self.alive() {
       set running = false;
     }
   }
@@ -204,11 +204,11 @@ fn read_stderr(self &Subprocess, len int) str {
   ret read_stderr(self.handle, len);
 }
 
-fn get_env_var(name str) str extern;
-fn launch_command(args Array<imm,final,str>) i64 extern;
-fn write_stdin(cmd i64, s str) extern;
-fn read_stdout(cmd i64, len int) str extern;
-fn read_stderr(cmd i64, len int) str extern;
-fn join(cmd i64) int extern;
-fn alive(cmd i64) bool extern;
-fn destroy(cmd i64) extern;
+extern fn get_env_var(name str) str;
+extern fn launch_command(args Array<imm, str>) i64;
+extern fn write_stdin(cmd i64, s str);
+extern fn read_stdout(cmd i64, len int) str;
+extern fn read_stderr(cmd i64, len int) str;
+extern fn join(cmd i64) int;
+extern fn alive(cmd i64) bool;
+extern fn destroy(cmd i64);

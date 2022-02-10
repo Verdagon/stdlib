@@ -2,7 +2,7 @@
 fn void() { }
 
 fn str(b bool) str {
-  = if (b) { "true" } else { "false" }
+  if (b) { "true" } else { "false" }
 }
 
 fn +(i int, s str) str {
@@ -11,6 +11,13 @@ fn +(i int, s str) str {
 
 fn +(s str, i int) str {
   s + str(i)
+}
+
+fn +(s str, i i64) str {
+  s + str(i)
+}
+fn +(i i64, s str) str {
+  str(i) + s
 }
 
 fn +(s str, b bool) str {

@@ -1,4 +1,4 @@
 
-fn stdinReadInt() int extern;
+extern fn stdinReadInt() int;
 
-fn getch() int extern;
+extern fn getch() int;

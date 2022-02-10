@@ -3,24 +3,22 @@ import stdlib.testsuite.*;
 import stdlib.date.*;
 import stdlib.path.*;
 
-fn main() export {
+exported fn main() {
   suite = TestSuite();
 
-  println("zork 1");
   test_directory = Path("./test_tmp/" + UnixTimestamp().str() + "/bork");
+  println("zork 1");
+  test_directory.CreateDirAll(true);
   println("zork 2");
-  test_directory.makeDirectories(true);
-  println("zork 3");
   test_file = test_directory./("myfile.txt");
-  println("zork 4");
+  println("zork 3");
   test_file.writeString("hello");
-  println("zork 5");
+  println("zork 4");
   test_directory./("a.txt").writeString("a");
-  println("zork 6");
   test_directory./("b.txt").writeString("b");
-  println("zork 7");
+  println("zork 5");
 
-  suite!.sub("makeDirectories", (sts){
+  suite!.sub("CreateDirAll", (sts){
     sts!.test("basic", {
       test_directory.exists() should_equal true;
     });

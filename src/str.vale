@@ -33,18 +33,18 @@ fn find(haystack StrSlice, needle StrSlice) Opt<StrSlice> {
           haystack.string, haystack.begin, haystack.end,
           needle.string, needle.begin, needle.end);
 
-  = if (offsetAfterBegin < 0) {
-      r Opt<StrSlice> = None<StrSlice>();
-      = r;
-    } else {
-      r Opt<StrSlice> =
-          Some<StrSlice>(
-              newStrSlice(
-                  haystack.string,
-                  haystack.begin + offsetAfterBegin,
-                  haystack.begin + offsetAfterBegin + needle.len()));
-      = r;
-    }
+  if offsetAfterBegin < 0 {
+    r Opt<StrSlice> = None<StrSlice>();
+    r
+  } else {
+    r Opt<StrSlice> =
+        Some<StrSlice>(
+            newStrSlice(
+                haystack.string,
+                haystack.begin + offsetAfterBegin,
+                haystack.begin + offsetAfterBegin + needle.len()));
+    r
+  }
 }
 
 fn slice(s str) StrSlice {
@@ -55,7 +55,7 @@ fn slice(s str, begin int) StrSlice { s.slice().slice(begin) }
 fn slice(s StrSlice, begin int) StrSlice {
   newBegin = s.begin + begin;
   vassert(newBegin <= s.string.len(), "slice begin is more than string length!");
-  = newStrSlice(s.string, newBegin, s.end);
+  newStrSlice(s.string, newBegin, s.end)
 }
 
 fn len(s StrSlice) int {
@@ -63,13 +63,13 @@ fn len(s StrSlice) int {
 }
 
 fn slice(s str, begin int, end int) StrSlice {
-  = newStrSlice(s, begin, end);
+  newStrSlice(s, begin, end)
 }
 
 fn slice(s StrSlice, begin int, end int) StrSlice {
   newGlyphBeginOffset = s.begin + begin;
   newGlyphEndOffset = s.begin + end;
-  = newStrSlice(s.string, newGlyphBeginOffset, newGlyphEndOffset);
+  newStrSlice(s.string, newGlyphBeginOffset, newGlyphEndOffset)
 }
 
 
@@ -110,7 +110,7 @@ fn println(s StrSlice) void {
 fn toAscii(s str) int { s.slice().toAscii() }
 fn toAscii(s StrSlice) int {
   vassert(s.begin + 1 <= s.end);
-  = strtoascii(s.string, s.begin, s.end);
+  strtoascii(s.string, s.begin, s.end)
 }
 
 fn fromAscii(code int) str {

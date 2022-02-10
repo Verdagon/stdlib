@@ -4,7 +4,7 @@ fn startsWith(a str, b str) bool { startsWith(a.slice(), b.slice()) }
 fn startsWith(a str, b StrSlice) bool { startsWith(a.slice(), b) }
 fn startsWith(a StrSlice, b str) bool { startsWith(a, b.slice()) }
 fn startsWith(a StrSlice, b StrSlice) bool {
-  if (b.len() > a.len()) {
+  if b.len() > a.len() {
     ret false;
   }
   ret a.slice(0, b.len()) == b;
@@ -15,10 +15,10 @@ fn endsWith(a str, b str) bool { endsWith(a.slice(), b.slice()) }
 fn endsWith(a str, b StrSlice) bool { endsWith(a.slice(), b) }
 fn endsWith(a StrSlice, b str) bool { endsWith(a, b.slice()) }
 fn endsWith(a StrSlice, b StrSlice) bool {
-  if (b.len() > a.len()) {
+  if b.len() > a.len() {
     ret false;
   }
-  = a.slice(a.len() - b.len(), a.len()) == b;
+  a.slice(a.len() - b.len(), a.len()) == b
 }
 
 
@@ -32,11 +32,11 @@ fn splice(original str, at int, removeNumChars int, insert str) str {
 fn ltrim(s str) StrSlice { ltrim(s.slice()) }
 fn ltrim(s! StrSlice) StrSlice {
   whitespace = " \r\n\t";
-  while (true) {
-    if (s == "") {
+  while true {
+    if s == "" {
       ret s;
     }
-    if (whitespace.find(s.slice(0, 1)).isEmpty()) {
+    if whitespace.find(s.slice(0, 1)).isEmpty() {
       ret s;
     }
     set s = s.slice(1, s.len());
@@ -46,11 +46,11 @@ fn ltrim(s! StrSlice) StrSlice {
 fn rtrim(s str) StrSlice { rtrim(s.slice()) }
 fn rtrim(s! StrSlice) StrSlice {
   whitespace = " \r\n\t";
-  while (true) {
-    if (s == "") {
+  while true {
+    if s == "" {
       ret s;
     }
-    if (whitespace.find(s.slice(s.len() - 1, s.len())).isEmpty()) {
+    if whitespace.find(s.slice(s.len() - 1, s.len())).isEmpty() {
       ret s;
     }
     set s = s.slice(0, s.len() - 1);
@@ -63,8 +63,8 @@ fn trim(s! StrSlice) StrSlice { ltrim(rtrim(s)) }
 
 fn isWhitespace(s str) bool { isWhitespace(s.slice()) }
 fn isWhitespace(s! StrSlice) bool {
-  while (len(s) > 0) {
-    if (" \r\n\t".find(s).isEmpty()) {
+  while len(s) > 0 {
+    if " \r\n\t".find(s).isEmpty() {
       // then its not whitespace
       ret false;
     }
@@ -76,11 +76,11 @@ fn isWhitespace(s! StrSlice) bool {
 
 fn ltrimnl(s str) StrSlice { ltrimnl(s.slice()) }
 fn ltrimnl(s! StrSlice) StrSlice {
-  while (true) {
-    if (s == "") {
+  while true {
+    if s == "" {
       ret s;
     }
-    if (s.slice(0, 1) != "\n") {
+    if s.slice(0, 1) != "\n" {
       ret s;
     }
     set s = s.slice(1, s.len());
@@ -90,11 +90,11 @@ fn ltrimnl(s! StrSlice) StrSlice {
 fn rtrimnl(s str) StrSlice { rtrimnl(s.slice()) }
 fn rtrimnl(s! StrSlice) StrSlice {
   whitespace = " \r\n\t";
-  while (true) {
-    if (s == "") {
+  while true {
+    if s == "" {
       ret s;
     }
-    if (s.slice(s.len() - 1, s.len()) != "\n") {
+    if s.slice(s.len() - 1, s.len()) != "\n" {
       ret s;
     }
     set s = s.slice(0, s.len() - 1);
@@ -107,26 +107,26 @@ fn trimnl(s! StrSlice) StrSlice { ltrimnl(rtrimnl(s)) }
 
 fn int(s! str) Opt<int> { int(s.slice()) }
 fn int(s! StrSlice) Opt<int> {
-  if (s == "") {
+  if s == "" {
     ret None<int>();
   }
 
   hasNegative =
-    if (s.startsWith("-")) {
+    if s.startsWith("-") {
       set s = s.slice(1);
-      = true;
+      true
     } else {
-      = false;
+      false
     };
 
   totalSoFar = 0;
   digitsConsumed = 0;
 
-  while (s != "") {
+  while s != "" {
     digitStr = s.slice(0, 1);
 
     ascii = toAscii(digitStr);
-    if (ascii < 48 or ascii >= 58) {
+    if ascii < 48 or ascii >= 58 {
       ret None<int>();
     }
     digit = ascii - 48;
@@ -136,8 +136,8 @@ fn int(s! StrSlice) Opt<int> {
     set s = s.slice(1);
   }
 
-  if (hasNegative) {
-    if (digitsConsumed == 0) {
+  if hasNegative {
+    if digitsConsumed == 0 {
       ret None<int>();
     }
     set totalSoFar = totalSoFar * -1;
@@ -161,24 +161,24 @@ fn splitOnce(haystack str, needle StrSlice) Opt<SplitResult> {
 }
 fn splitOnce(haystack StrSlice, needle StrSlice) Opt<SplitResult> {
   maybeOffsetAfterBegin = find(haystack, needle);
-  = if (maybeOffsetAfterBegin.isEmpty()) {
-      r Opt<SplitResult> = None<SplitResult>();
-      = r;
-    } else {
-      offsetAfterBegin = maybeOffsetAfterBegin.get();
-      r Opt<SplitResult> =
-          Some<SplitResult>(
-              SplitResult(
-                  newStrSlice(
-                      haystack.string,
-                      haystack.begin,
-                      offsetAfterBegin.begin),
-                  newStrSlice(
-                      haystack.string,
-                      offsetAfterBegin.begin + needle.len(),
-                      haystack.end)));
-      = r;
-    }
+  if maybeOffsetAfterBegin.isEmpty() {
+    r Opt<SplitResult> = None<SplitResult>();
+    r
+  } else {
+    offsetAfterBegin = maybeOffsetAfterBegin.get();
+    r Opt<SplitResult> =
+        Some<SplitResult>(
+            SplitResult(
+                newStrSlice(
+                    haystack.string,
+                    haystack.begin,
+                    offsetAfterBegin.begin),
+                newStrSlice(
+                    haystack.string,
+                    offsetAfterBegin.begin + needle.len(),
+                    haystack.end)));
+    r
+  }
 }
 
 
@@ -194,9 +194,9 @@ fn split(haystack StrSlice, needle str) List<StrSlice> {
 fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
   // Special case first: this means they want to explode a string into
   // chars, like "abc" into "a", "b", "c"  
-  if (needle == "") {
+  if needle == "" {
     result_parts = List<StrSlice>();
-    while (haystack != "") {
+    while haystack != "" {
       result_parts!.add(haystack.slice(0, 1));
       set haystack = haystack.slice(1, haystack.len());
     }
@@ -210,14 +210,14 @@ fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
 
   result_parts = List<StrSlice>();
 
-  if (needle == "") {
+  if needle == "" {
     result_parts!.add("".slice());
     ret result_parts;
   }
 
   // For example, if we do "aabbb".split("a"), we want to take the two "a"s off
   // the start, and add two ""s to the result_parts.
-  while (haystack.startsWith(needle)) {
+  while haystack.startsWith(needle) {
     set haystack = haystack.slice(needle.len(), haystack.len());
     result_parts!.add("".slice());
   }
@@ -229,7 +229,7 @@ fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
   // We'll just remember for now how many of them are at the end, and
   // shorten them off haystack.
   num_at_end = 0;
-  while (haystack.endsWith(needle)) {
+  while haystack.endsWith(needle) {
     set haystack = haystack.slice(0, haystack.len() - needle.len());
     set num_at_end = num_at_end + 1;
   }
@@ -237,17 +237,17 @@ fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
   // For example, if we do "aaa".split("a"), the above start slicing put
   // 3 ""s into result_parts, and left us with a "". We still want another ""
   // to maintain the invariant, so we just add another one here.
-  if (haystack == "") {
+  if haystack == "" {
     result_parts!.add("".slice());
   } else {
     // If we get here, no needles are at the beginning or end, and we still
     // have a haystack.
     // For example, needle "a" and haystack "babab".
-    while (haystack != "") {
+    while haystack != "" {
       before_and_after_next_needle = haystack.splitOnce(needle);
-      if (not before_and_after_next_needle.isEmpty()) {
+      if not before_and_after_next_needle.isEmpty() {
         // There's a needle somewhere in the haystack!
-        (before_next_needle, after_next_needle) = before_and_after_next_needle.get();
+        [before_next_needle, after_next_needle] = before_and_after_next_needle.get();
         // If haystack was "bacad" and needle was "a",
         // before_next_needle will contain "b" and
         // after_next_needle will contain "cad"
@@ -265,7 +265,7 @@ fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
 
   // Add the ""s we found at the end of the haystack when we began.
   i = 0;
-  while (i < num_at_end) {
+  while i < num_at_end {
     result_parts!.add("".slice());
     set i = i + 1;
   }
@@ -277,7 +277,7 @@ fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
 struct StrSliceHasher { }
 fn __call(self &StrSliceHasher, s! StrSlice) int {
   sum! = 0;
-  while (s != "") {
+  while s != "" {
     set sum = sum * 1337 + toAscii(s.slice(0, 1));
     set s = s.slice(1);
   }
@@ -293,7 +293,7 @@ struct StrHasher { }
 fn __call(self &StrHasher, original_str! str) int {
   s = original_str.slice();
   sum! = 0;
-  while (s != "") {
+  while s != "" {
     set sum = sum * 1337 + toAscii(s.slice(0, 1));
     set s = s.slice(1);
   }
@@ -314,8 +314,8 @@ fn StringBuilder() StringBuilder {
 }
 fn assembleStr(self &StringBuilder) str {
   result! = "";
-  each (self.parts) (s){
-    mut result = result + s;
+  foreach s in self.parts {
+    set result = result + s;
   }
   ret result;
 }
@@ -371,12 +371,12 @@ fn replaceAll(remaining_source StrSlice, needle StrSlice, replacement StrSlice) 
   builder = StringBuilder();
 
   running = true;
-  while (running) {
+  while running {
     maybe_next_and_new_remaining_source = remaining_source.splitOnce(needle);
-    if (maybe_next_and_new_remaining_source.isEmpty()) {
+    if maybe_next_and_new_remaining_source.isEmpty() {
       set running = false;
     } else {
-      (next, new_remaining_source) = maybe_next_and_new_remaining_source.get();
+      [next, new_remaining_source] = maybe_next_and_new_remaining_source.get();
       builder!.print(next);
       builder!.print(replacement);
       set remaining_source = new_remaining_source;

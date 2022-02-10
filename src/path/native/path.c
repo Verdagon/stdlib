@@ -11,8 +11,8 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
-#include<unistd.h>
-#include<dirent.h>
+#include <unistd.h>
+#include <dirent.h>
 #endif
 
 #include "stdlib/StrArray.h"
@@ -26,6 +26,7 @@
 #include "stdlib/Path.h"
 #include "stdlib/PathList.h"
 #include "stdlib/AddToPathChildList.h"
+#include "stdlib/CreateDirExtern.h"
 
 // We have both is_file_internal and is_directory_internal because they aren't
 // exactly inverses of each other... a symbolic link on unix will return false
@@ -36,7 +37,15 @@ static int8_t is_file_internal(char* path) {
   return (GetFileAttributes(path) & FILE_ATTRIBUTE_DIRECTORY) == 0;
 #else
   struct stat path_stat;
-  stat(path, &path_stat);
+  if (stat(path, &path_stat) != 0) {
+    if (errno == ENOENT) {
+      // Doesnt exist
+      return 0;
+    } else {
+      perror("is_file_internal stat failed! ");
+      exit(1);
+    }
+  }
   return S_ISREG(path_stat.st_mode);
 #endif
 }
@@ -46,7 +55,15 @@ static int8_t is_directory_internal(char* path) {
   return !!(GetFileAttributes(path) & FILE_ATTRIBUTE_DIRECTORY);
 #else
   struct stat path_stat;
-  stat(path, &path_stat);
+  if (stat(path, &path_stat) != 0) {
+    if (errno == ENOENT) {
+      // Doesnt exist
+      return 0;
+    } else {
+      perror("is_directory_internal stat failed! ");
+      exit(1);
+    }
+  }
   return S_ISDIR(path_stat.st_mode);
 #endif
 }
@@ -207,6 +224,24 @@ static int8_t iterdir_internal(stdlib_PathRef path, char* dirPath, stdlib_PathLi
   return 1;
 }
 
+
+static int8_t CreateDir(char* path, int8_t allow_already_existing) {
+  if (mkdir(path, 0700) != 0) {
+    if (allow_already_existing && errno == EEXIST) {
+      // fine, continue
+    } else {
+      perror("Couldn't make directory");
+      return 0;
+    }
+  }
+  return 1;
+}
+
+extern int8_t stdlib_CreateDirExtern(ValeStr* path, int8_t allow_already_existing) {
+  int8_t result = CreateDir(path->chars, allow_already_existing);
+  free(path);
+  return result;
+}
 
 
 extern int8_t stdlib_exists(ValeStr* path) {

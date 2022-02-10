@@ -5,7 +5,7 @@ struct Ship {
   fuel int;
 }
 
-fn main() export {
+exported fn main() {
   suite = TestSuite();
 
   suite!.test("List from SSA of primitives", {
@@ -65,8 +65,8 @@ fn main() export {
     sett!.add(39);
     sett!.add(42);
     sett!.add(51);
-    sett!.add(42);
     sett.has(42) should_equal true;
+    sett.has(43) should_equal false;
     sett.len() should_equal 3;
   });
 

@@ -91,7 +91,7 @@ struct ParsedFlagList {
 /// flag would be `vale build` vs `--verbose`.
 /// 
 /// ... Maybe one day we can get a self-hosted CLI like that... A Valer can but dream.
-struct CommandList<N> { commands [N * Command]; }
+struct CommandList<N> { commands [#N]Command; }
 
 /// As described in @CommandList, a `Command` takes no arguments. It is simply
 /// a subcommand within the main command, such as `vale build`, where `build` is
@@ -158,14 +158,14 @@ fn verify<N>(command_list &CommandList<N>, command_str str) bool {
   valid! = false;
 
   command_list.flags.each((cmd){
-    if (valid) {
+    if valid {
       ret void();
     }
 
-    mut valid = cmd.name == command_str;
+    set valid = cmd.name == command_str;
   });
 
-  = valid;
+  valid
 }
 
 /// Parses all flags within the arguments.
@@ -180,28 +180,26 @@ fn verify<N>(command_list &CommandList<N>, command_str str) bool {
 /// 
 /// # returns:
 ///   1. A list of parsed and invalid flags.
-fn parse_all_flags<N>(flag_list &[<_, _> N * Flag], args Array<imm, str>) ParsedFlagList {
+fn parse_all_flags<N>(flag_list &[#N]<_, _>Flag, args []<imm>str) ParsedFlagList {
   parsed_flag_list = ParsedFlagList(List<ParsedFlag>(), List<str>());
 
   i! = 1;
 
-  while (i < len(args)) {
+  while i < len(args) {
     arg = args[i];
 
     valid!   = false;
     flag_type! = FLAG_NOTHING();
 
-    flag_list.each((flag){
-      if (valid) {
-        ret void();
+    foreach flag in flag_list {
+      if not valid {
+        set valid = flag.name == arg;
+        set flag_type = flag.type;
       }
+    }
 
-      mut valid = flag.name == arg;
-      mut flag_type = flag.type;
-    });
-
-    if (valid and flag_type != FLAG_NOTHING()) {
-      (new_parsed_flag, new_i) = parse_flag(args, flag_type, &i);
+    if valid and flag_type != FLAG_NOTHING() {
+      [new_parsed_flag, new_i] = parse_flag(args, flag_type, &i);
       set i = new_i;
       parsed_flag_list.parsed_flags!.add(new_parsed_flag);
     }
@@ -217,7 +215,7 @@ fn parse_all_flags<N>(flag_list &[<_, _> N * Flag], args Array<imm, str>) Parsed
     set i = i + 1;
   }
 
-  = parsed_flag_list;
+  parsed_flag_list
 }
 
 /// Parses a single flag and its value given its information.
@@ -230,51 +228,51 @@ fn parse_all_flags<N>(flag_list &[<_, _> N * Flag], args Array<imm, str>) Parsed
 /// 
 /// # returns:
 ///   1. A list of parsed and invalid flags.
-fn parse_flag(args Array<imm, str>, flag_type int, i! int) [ParsedFlag, int] {
+fn parse_flag(args []<imm>str, flag_type int, i! int) (ParsedFlag, int) {
   name = args[i];
 
   // Curse Verdagon and his lack of matches! lol
 
-  if (flag_type == FLAG_NOTHING()) {
+  if flag_type == FLAG_NOTHING() {
     vassert(false, "Invalid flag type was passed");
 
-    ret [ParsedFlag(name, FlagString("")), i];
+    ret (ParsedFlag(name, FlagString("")), i);
   }
 
   else if (flag_type == FLAG_INT()) {
-    mut i = i + 1;
+    set i = i + 1;
     
     val = int(args[i].slice());
 
     vassert(not val.isEmpty(), "Argument " + str(i) + " \"" + args[i] + "\" is not an int.");
 
-    ret [ParsedFlag(name, FlagInt(val.get())), i];
+    ret (ParsedFlag(name, FlagInt(val.get())), i);
   }
 
   else if (flag_type == FLAG_STR()) {
-    mut i = i + 1;
-    ret [ParsedFlag(name, FlagString(args[i])), i];
+    set i = i + 1;
+    ret (ParsedFlag(name, FlagString(args[i])), i);
   }
 
   else if (flag_type == FLAG_TOKN()) {
-    mut i = i + 1;
-    ret [ParsedFlag(name, FlagToken(args[i])), i];
+    set i = i + 1;
+    ret (ParsedFlag(name, FlagToken(args[i])), i);
   }
 
   else if (flag_type == FLAG_BOOL()) {
-    mut i = i + 1;
+    set i = i + 1;
 
     val = args[i] == "true";
 
     vassert((not val and args[i] == "false") or val, "Invalid bool value \"" + args[i] + "\" for flag \"" + args[i - 1] + "\".");
 
-    ret [ParsedFlag(name, FlagBool(val)), i];
+    ret (ParsedFlag(name, FlagBool(val)), i);
   }
 
   else {
     vassert(false, "Invalid flag type was passed");
 
-    ret [ParsedFlag(name, FlagString("")), i];
+    ret (ParsedFlag(name, FlagString("")), i);
   }
 
   panic("Invalid or unimplemented type has been passed.");
@@ -288,14 +286,14 @@ fn parse_flag(args Array<imm, str>, flag_type int, i! int) [ParsedFlag, int] {
 ///   * flag_list The set of possible flags, given to @parse_all_flags.
 ///   * flag_name The name of the flag that we're looking for.
 fn explain_flag<N>(
-    flag_list &[N * Flag],
+    flag_list &[#N]Flag,
     flag_name str) {
   needle_flag_name = flag_name;
 
   i! = 0;
-  while (i < flag_list.len()) {
+  while i < flag_list.len() {
     hay_flag = flag_list[i];
-    if (hay_flag.name == needle_flag_name) {
+    if hay_flag.name == needle_flag_name {
       println("{hay_flag.name}: {hay_flag.short_desc}");
       println("");
       println("Example: {hay_flag.name}={hay_flag.example}");
@@ -318,8 +316,8 @@ fn explain_flag<N>(
 ///   1. Whether the flag with the given name was specified by the user.
 fn get_nothing_flag(parsed_flag_list &ParsedFlagList, flag_name str) bool {
   i! = 0;
-  while (i < parsed_flag_list.parsed_flags.len()) {
-    if (parsed_flag_list.parsed_flags.get(i).name == flag_name) {
+  while i < parsed_flag_list.parsed_flags.len() {
+    if parsed_flag_list.parsed_flags.get(i).name == flag_name {
       ret true;
     }
     set i = i + 1;
@@ -339,11 +337,11 @@ fn get_string_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<str> {
   needle_flag_name = flag_name;
 
   i! = 0;
-  while (i < parsed_flag_list.parsed_flags.len()) {
+  while i < parsed_flag_list.parsed_flags.len() {
     hay_flag = parsed_flag_list.parsed_flags.get(i);
-    if (hay_flag.name == needle_flag_name) {
+    if hay_flag.name == needle_flag_name {
       maybe_str_flag = hay_flag.val.as<FlagString>();
-      if (maybe_str_flag.is_ok()) {
+      if maybe_str_flag.is_ok() {
         strFlag = maybe_str_flag.expect();
         ret Some<str>(strFlag.value);
       }
@@ -366,7 +364,7 @@ fn get_string_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<str> {
 ///   1. The value given by the user for the flag with the given name.
 fn get_string_flag(parsed_flag_list &ParsedFlagList, flag_name str, default str) str {
   result = get_string_flag(parsed_flag_list, flag_name);
-  if (not result.isEmpty()) {
+  if not result.isEmpty() {
     ret (result).get();
   } else {
     ret default;
@@ -388,11 +386,11 @@ fn get_string_flag(parsed_flag_list &ParsedFlagList, flag_name str, default str)
 ///   1. The value given by the user for the flag with the given name.
 fn expect_string_flag<N>(
   parsed_flag_list &ParsedFlagList,
-  flag_list &[N * Flag],
+  flag_list &[#N]Flag,
   flag_name str)
 str {
   maybe_found_flag = get_string_flag(parsed_flag_list, flag_name);
-  if (not maybe_found_flag.isEmpty()) {
+  if not maybe_found_flag.isEmpty() {
     ret maybe_found_flag.get();
   }
   println("Must specify the " + flag_name + " flag, explained below.");
@@ -415,11 +413,11 @@ fn get_bool_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<bool> {
   needle_flag_name = flag_name;
 
   i! = 0;
-  while (i < parsed_flag_list.parsed_flags.len()) {
+  while i < parsed_flag_list.parsed_flags.len() {
     hay_flag = parsed_flag_list.parsed_flags.get(i);
-    if (hay_flag.name == needle_flag_name) {
+    if hay_flag.name == needle_flag_name {
       maybe_str_flag = hay_flag.val.as<FlagBool>();
-      if (maybe_str_flag.is_ok()) {
+      if maybe_str_flag.is_ok() {
         strFlag = maybe_str_flag.expect();
         ret Some<bool>(strFlag.value);
       }
@@ -442,7 +440,7 @@ fn get_bool_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<bool> {
 ///   1. The value given by the user for the flag with the given name.
 fn get_bool_flag(parsed_flag_list &ParsedFlagList, flag_name str, default bool) bool {
   result = get_bool_flag(parsed_flag_list, flag_name);
-  if (not result.isEmpty()) {
+  if not result.isEmpty() {
     ret (result).get();
   } else {
     ret default;
@@ -464,11 +462,11 @@ fn get_bool_flag(parsed_flag_list &ParsedFlagList, flag_name str, default bool) 
 ///   1. The value given by the user for the flag with the given name.
 fn expect_bool_flag<N>(
   parsed_flag_list &ParsedFlagList,
-  flag_list &[N * Flag],
+  flag_list &[#N]Flag,
   flag_name str)
 bool {
   maybe_found_flag = get_bool_flag(parsed_flag_list, flag_name);
-  if (not maybe_found_flag.isEmpty()) {
+  if not maybe_found_flag.isEmpty() {
     ret maybe_found_flag.get();
   }
   println("Must specify the " + flag_name + " flag, explained below.");
@@ -491,11 +489,11 @@ fn get_int_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<int> {
   needle_flag_name = flag_name;
 
   i! = 0;
-  while (i < parsed_flag_list.parsed_flags.len()) {
+  while i < parsed_flag_list.parsed_flags.len() {
     hay_flag = parsed_flag_list.parsed_flags.get(i);
-    if (hay_flag.name == needle_flag_name) {
+    if hay_flag.name == needle_flag_name {
       maybe_str_flag = hay_flag.val.as<FlagInt>();
-      if (maybe_str_flag.is_ok()) {
+      if maybe_str_flag.is_ok() {
         strFlag = maybe_str_flag.expect();
         ret Some<int>(strFlag.value);
       }
@@ -518,7 +516,7 @@ fn get_int_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<int> {
 ///   1. The value given by the user for the flag with the given name.
 fn get_int_flag(parsed_flag_list &ParsedFlagList, flag_name str, default int) int {
   result = get_int_flag(parsed_flag_list, flag_name);
-  if (not result.isEmpty()) {
+  if not result.isEmpty() {
     ret (result).get();
   } else {
     ret default;
@@ -540,11 +538,11 @@ fn get_int_flag(parsed_flag_list &ParsedFlagList, flag_name str, default int) in
 ///   1. The value given by the user for the flag with the given name.
 fn expect_int_flag<N>(
   parsed_flag_list &ParsedFlagList,
-  flag_list &[N * Flag],
+  flag_list &[#N]Flag,
   flag_name str)
 int {
   maybe_found_flag = get_int_flag(parsed_flag_list, flag_name);
-  if (not maybe_found_flag.isEmpty()) {
+  if not maybe_found_flag.isEmpty() {
     ret maybe_found_flag.get();
   }
   println("Must specify the " + flag_name + " flag, explained below.");

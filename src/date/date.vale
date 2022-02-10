@@ -1,2 +1,2 @@
 
-fn UnixTimestamp() i64 extern;
+extern fn UnixTimestamp() i64;

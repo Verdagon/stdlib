@@ -15,20 +15,20 @@ fn HashSet<K, H, E>(hasher H, equator E, capacity int) HashSet<K, H, E> {
       equator,
       Array<mut, Opt<K>>(
         capacity,
-        &!IFunction1<mut, int, Opt<K>>((index){
+        &!IFunction1<mut, int, Opt<K>>((index) => {
           opt Opt<K> = None<K>();
-          = opt;
+          opt
         })),
       0)
 }
 
 fn HashSet<K, H, E, M, N>(
-    valuesKSA &[<M> N * K],
+    valuesKSA &[#N]<M>K,
     hasher H,
     equator E)
 HashSet<K, H, E> {
   this = HashSet<K, H, E>(hasher, equator, 0);
-  each (valuesKSA) (v){
+  foreach v in valuesKSA {
     if (not this.has(v)) {
       this!.add(v);
     }
@@ -37,12 +37,12 @@ HashSet<K, H, E> {
 }
 
 fn HashSet<K, H, E>(
-    valuesArray &Array<_, _, K>,
+    valuesArray &[]<_>K,
     hasher H,
     equator E)
 HashSet<K, H, E> {
   this = HashSet<K, H, E>(hasher, equator, 0);
-  each (valuesArray) (v){
+  foreach v in valuesArray {
     if (not this.has(v)) {
       this!.add(v);
     }
@@ -65,9 +65,9 @@ fn add<K, H, E>(self &!HashSet<K, H, E>, key K) void {
     newTable =
         Array<mut, Opt<K>>(
             newSize,
-            &!IFunction1<mut, int, Opt<K>>((index){
+            &!IFunction1<mut, int, Opt<K>>((index) => {
               opt Opt<K> = None<K>();
-              = opt;
+              opt
             }));
     i! = 0;
     while (i < self.table.len()) {
@@ -78,13 +78,13 @@ fn add<K, H, E>(self &!HashSet<K, H, E>, key K) void {
         node = get(node?);
         addNodeToHashSetTable(&!newTable, self.hasher, node);
       }
-      mut i = i + 1;
+      set i = i + 1;
     }
-    mut self.table = newTable;
+    set self.table = newTable;
   }
 
   addNodeToHashSetTable(&!self.table, self.hasher, key);
-  mut self.size = self.size + 1;
+  set self.size = self.size + 1;
 }
 
 fn addNodeToHashSetTable<K, H>(table &!Array<mut, Opt<K>>, hasher H, key K) {
@@ -93,7 +93,7 @@ fn addNodeToHashSetTable<K, H>(table &!Array<mut, Opt<K>>, hasher H, key K) {
   index = findEmptyIndexInHashSetForKey(&table, startIndex, key);
 
   opt Opt<K> = Some(key);
-  mut table[index] = opt;
+  set table[index] = opt;
 }
 
 fn findEmptyIndexInHashSetForKey<K>(table &Array<mut, Opt<K>>, startIndex int, key K) int {
@@ -105,9 +105,9 @@ fn findEmptyIndexInHashSetForKey<K>(table &Array<mut, Opt<K>>, startIndex int, k
       ret index;
     }
     // continue to next node
-    mut i = i + 1;
+    set i = i + 1;
   }
-  = panic("findEmptyIndexInHashSetForKey went past end of table!");
+  panic("findEmptyIndexInHashSetForKey went past end of table!");
 }
 
 fn findIndexOfKey<K, E>(table &Array<mut, Opt<K>>, equator E, startIndex int, key K) Opt<int> {
@@ -123,9 +123,9 @@ fn findIndexOfKey<K, E>(table &Array<mut, Opt<K>>, equator E, startIndex int, ke
       ret Some<int>(index);
     }
     // continue to next node
-    mut i = i + 1;
+    set i = i + 1;
   }
-  = panic("findIndexOfKey went past end of table! len " + str(table.len()) + " and i " + str(i));
+  panic("findIndexOfKey went past end of table! len " + str(table.len()) + " and i " + str(i));
 }
 
 fn get<K, H, E>(self &HashSet<K, H, E>, key K) Opt<K> {
@@ -156,9 +156,9 @@ fn toArray<K, H, E>(self &HashSet<K, H, E>) Array<imm, K> {
     if (not(node?.isEmpty())) {
       list!.add(node?.get());
     }
-    mut index = index + 1;
+    set index = index + 1;
   }
-  = list.toImmArray();
+  list.toImmArray()
 }
 
 fn innerRemove<K, H, E>(
@@ -171,7 +171,7 @@ int {
   startIndex = abs(hash mod table.len());
   index? = findIndexOfKey(&table, &equator, startIndex, key);
   index = index?.get();
-  mut table[index] = None<K>();
+  set table[index] = None<K>();
   ret index;
 }
 
@@ -180,7 +180,7 @@ fn remove<K, H, E>(
   key K)
 void {
   originalIndex = innerRemove(&!self.table, self.hasher, self.equator, key);
-  mut self.size = self.size - 1;
+  set self.size = self.size - 1;
 
   i! = 1;
   while (i < self.table.len()) {
@@ -191,9 +191,9 @@ void {
       addNodeToHashSetTable(&!self.table, self.hasher, neighborKey);
     } else {
       drop(neighbor?);
-      mut i = self.table.len(); // break
+      set i = self.table.len(); // break
     }
-    mut i = i + 1;
+    set i = i + 1;
   }
 }
 
@@ -207,7 +207,7 @@ void {
     if (not(node?.isEmpty())) {
       func!(node?.get());
     }
-    mut index = index + 1;
+    set index = index + 1;
   }
 }
 
@@ -221,6 +221,49 @@ void {
     if (not(node?.isEmpty())) {
       func!(node?.get());
     }
-    mut index = index + 1;
+    set index = index + 1;
   }
+}
+
+
+
+struct HashSetReadonlyIter<K> {
+  table &Array<mut, Opt<K>>;
+  pos! int;
+}
+
+fn begin<K, H, E>(map &HashSet<K, H, E>) HashSetReadonlyIter<K> {
+  HashSetReadonlyIter<K>(&map.table, 0)
+}
+
+fn next<K>(iter &!HashSetReadonlyIter<K>) Opt<&K> {
+  while iter.pos < iter.table.len() {
+    this_pos = set iter.pos = iter.pos + 1;
+    if not iter.table[this_pos].isEmpty() {
+      node = &iter.table[this_pos].get();
+      ret Some<&K>(node);
+    }
+  }
+  ret None<&K>();
+}
+
+
+struct HashSetReadwriteIter<K> {
+  table &![]<mut>Opt<K>;
+  pos! int;
+}
+
+fn begin<K, H, E>(map &!HashSet<K, H, E>) HashSetReadwriteIter<K> {
+  HashSetReadwriteIter<K>(&!map.table, 0)
+}
+
+fn next<K>(iter &!HashSetReadwriteIter<K>) Opt<&!K> {
+  while iter.pos < iter.table.len() {
+    this_pos = set iter.pos = iter.pos + 1;
+    if not iter.table[this_pos].isEmpty() {
+      node = &!iter.table[this_pos]!.get();
+      ret Some<&!K>(node);
+    }
+  }
+  ret None<&!K>();
 }

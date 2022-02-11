@@ -7,16 +7,11 @@ exported func main() {
   suite = TestSuite();
 
   test_directory = Path("./test_tmp/" + UnixTimestamp().str() + "/bork");
-  println("zork 1");
   test_directory.CreateDirAll(true);
-  println("zork 2");
   test_file = test_directory./("myfile.txt");
-  println("zork 3");
   test_file.writeString("hello");
-  println("zork 4");
   test_directory./("a.txt").writeString("a");
   test_directory./("b.txt").writeString("b");
-  println("zork 5");
 
   suite!.sub("CreateDirAll", (sts) => {
     sts!.test("basic", {

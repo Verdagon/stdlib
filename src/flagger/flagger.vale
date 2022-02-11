@@ -50,18 +50,18 @@ struct Flag {
   desc str;
 }
 
-fn FLAG_NOTHING() int { 0 }
+func FLAG_NOTHING() int { 0 }
 
-fn FLAG_INT () int { 1 }
-fn FLAG_STR () int { 2 }
-fn FLAG_TOKN() int { 3 }
-fn FLAG_BOOL() int { 4 }
+func FLAG_INT () int { 1 }
+func FLAG_STR () int { 2 }
+func FLAG_TOKN() int { 3 }
+func FLAG_BOOL() int { 4 }
 
-fn FLAG_LIST_INT () int { 5 }
-fn FLAG_LIST_STR () int { 6 }
-fn FLAG_LIST_TOKN() int { 7 }
-fn FLAG_LIST_BOOL() int { 8 }
-fn FLAG_LIST_ANY () int { 9 }
+func FLAG_LIST_INT () int { 5 }
+func FLAG_LIST_STR () int { 6 }
+func FLAG_LIST_TOKN() int { 7 }
+func FLAG_LIST_BOOL() int { 8 }
+func FLAG_LIST_ANY () int { 9 }
 
 /// The result of a flag that has been parsed.
 /// 
@@ -154,10 +154,10 @@ impl FlagType for FlagAnyList;
 ///
 /// # returns:
 ///   1. Whether the string is a valid @Command
-fn verify<N>(command_list &CommandList<N>, command_str str) bool {
+func verify<N>(command_list &CommandList<N>, command_str str) bool {
   valid! = false;
 
-  command_list.flags.each((cmd){
+  command_list.flags.each((cmd) => {
     if valid {
       ret void();
     }
@@ -180,7 +180,7 @@ fn verify<N>(command_list &CommandList<N>, command_str str) bool {
 /// 
 /// # returns:
 ///   1. A list of parsed and invalid flags.
-fn parse_all_flags<N>(flag_list &[#N]<_, _>Flag, args []<imm>str) ParsedFlagList {
+func parse_all_flags<N>(flag_list &[#N]<_, _>Flag, args []<imm>str) ParsedFlagList {
   parsed_flag_list = ParsedFlagList(List<ParsedFlag>(), List<str>());
 
   i! = 1;
@@ -228,7 +228,7 @@ fn parse_all_flags<N>(flag_list &[#N]<_, _>Flag, args []<imm>str) ParsedFlagList
 /// 
 /// # returns:
 ///   1. A list of parsed and invalid flags.
-fn parse_flag(args []<imm>str, flag_type int, i! int) (ParsedFlag, int) {
+func parse_flag(args []<imm>str, flag_type int, i! int) (ParsedFlag, int) {
   name = args[i];
 
   // Curse Verdagon and his lack of matches! lol
@@ -285,7 +285,7 @@ fn parse_flag(args []<imm>str, flag_type int, i! int) (ParsedFlag, int) {
 /// # params:
 ///   * flag_list The set of possible flags, given to @parse_all_flags.
 ///   * flag_name The name of the flag that we're looking for.
-fn explain_flag<N>(
+func explain_flag<N>(
     flag_list &[#N]Flag,
     flag_name str) {
   needle_flag_name = flag_name;
@@ -314,7 +314,7 @@ fn explain_flag<N>(
 ///
 /// # returns:
 ///   1. Whether the flag with the given name was specified by the user.
-fn get_nothing_flag(parsed_flag_list &ParsedFlagList, flag_name str) bool {
+func get_nothing_flag(parsed_flag_list &ParsedFlagList, flag_name str) bool {
   i! = 0;
   while i < parsed_flag_list.parsed_flags.len() {
     if parsed_flag_list.parsed_flags.get(i).name == flag_name {
@@ -333,7 +333,7 @@ fn get_nothing_flag(parsed_flag_list &ParsedFlagList, flag_name str) bool {
 ///
 /// # returns:
 ///   1. The value given by the user for the flag with the given name.
-fn get_string_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<str> {
+func get_string_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<str> {
   needle_flag_name = flag_name;
 
   i! = 0;
@@ -362,7 +362,7 @@ fn get_string_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<str> {
 ///
 /// # returns:
 ///   1. The value given by the user for the flag with the given name.
-fn get_string_flag(parsed_flag_list &ParsedFlagList, flag_name str, default str) str {
+func get_string_flag(parsed_flag_list &ParsedFlagList, flag_name str, default str) str {
   result = get_string_flag(parsed_flag_list, flag_name);
   if not result.isEmpty() {
     ret (result).get();
@@ -384,7 +384,7 @@ fn get_string_flag(parsed_flag_list &ParsedFlagList, flag_name str, default str)
 ///
 /// # returns:
 ///   1. The value given by the user for the flag with the given name.
-fn expect_string_flag<N>(
+func expect_string_flag<N>(
   parsed_flag_list &ParsedFlagList,
   flag_list &[#N]Flag,
   flag_name str)
@@ -409,7 +409,7 @@ str {
 ///
 /// # returns:
 ///   1. The value given by the user for the flag with the given name.
-fn get_bool_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<bool> {
+func get_bool_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<bool> {
   needle_flag_name = flag_name;
 
   i! = 0;
@@ -438,7 +438,7 @@ fn get_bool_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<bool> {
 ///
 /// # returns:
 ///   1. The value given by the user for the flag with the given name.
-fn get_bool_flag(parsed_flag_list &ParsedFlagList, flag_name str, default bool) bool {
+func get_bool_flag(parsed_flag_list &ParsedFlagList, flag_name str, default bool) bool {
   result = get_bool_flag(parsed_flag_list, flag_name);
   if not result.isEmpty() {
     ret (result).get();
@@ -460,7 +460,7 @@ fn get_bool_flag(parsed_flag_list &ParsedFlagList, flag_name str, default bool) 
 ///
 /// # returns:
 ///   1. The value given by the user for the flag with the given name.
-fn expect_bool_flag<N>(
+func expect_bool_flag<N>(
   parsed_flag_list &ParsedFlagList,
   flag_list &[#N]Flag,
   flag_name str)
@@ -485,7 +485,7 @@ bool {
 ///
 /// # returns:
 ///   1. The value given by the user for the flag with the given name.
-fn get_int_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<int> {
+func get_int_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<int> {
   needle_flag_name = flag_name;
 
   i! = 0;
@@ -514,7 +514,7 @@ fn get_int_flag(parsed_flag_list &ParsedFlagList, flag_name str) Opt<int> {
 ///
 /// # returns:
 ///   1. The value given by the user for the flag with the given name.
-fn get_int_flag(parsed_flag_list &ParsedFlagList, flag_name str, default int) int {
+func get_int_flag(parsed_flag_list &ParsedFlagList, flag_name str, default int) int {
   result = get_int_flag(parsed_flag_list, flag_name);
   if not result.isEmpty() {
     ret (result).get();
@@ -536,7 +536,7 @@ fn get_int_flag(parsed_flag_list &ParsedFlagList, flag_name str, default int) in
 ///
 /// # returns:
 ///   1. The value given by the user for the flag with the given name.
-fn expect_int_flag<N>(
+func expect_int_flag<N>(
   parsed_flag_list &ParsedFlagList,
   flag_list &[#N]Flag,
   flag_name str)

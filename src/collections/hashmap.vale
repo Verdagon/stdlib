@@ -12,11 +12,11 @@ struct HashMap<K, V, H, E> {
   size! int;
 }
 
-fn HashMap<K, V, H, E>(hasher H, equator E) HashMap<K, V, H, E> {
+func HashMap<K, V, H, E>(hasher H, equator E) HashMap<K, V, H, E> {
   HashMap<K, V, H, E>(hasher, equator, 0)
 }
 
-fn HashMap<K, V, H, E>(hasher H, equator E, capacity int) HashMap<K, V, H, E> {
+func HashMap<K, V, H, E>(hasher H, equator E, capacity int) HashMap<K, V, H, E> {
   HashMap<K, V>(
       hasher,
       equator,
@@ -29,9 +29,9 @@ fn HashMap<K, V, H, E>(hasher H, equator E, capacity int) HashMap<K, V, H, E> {
       0)
 }
 
-fn len<K, V, H, E>(self &HashMap<K, V, H, E>) int { self.size }
+func len<K, V, H, E>(self &HashMap<K, V, H, E>) int { self.size }
 
-fn update<K, V, H, E>(self &!HashMap<K, V, H, E>, key K, value V) void {
+func update<K, V, H, E>(self &!HashMap<K, V, H, E>, key K, value V) void {
   hash int = (&self.hasher)(key);
   startIndex = abs(hash mod self.table.len());
   index? = findIndexOfKey(&self.table, self.equator, startIndex, key);
@@ -43,7 +43,7 @@ fn update<K, V, H, E>(self &!HashMap<K, V, H, E>, key K, value V) void {
   set node.value = value;
 }
 
-fn add<K, V, H, E>(map &!HashMap<K, V, H, E>, key K, value V) void {
+func add<K, V, H, E>(map &!HashMap<K, V, H, E>, key K, value V) void {
   if map.has(key) {
     panic("Map already has given key!");
   }
@@ -76,7 +76,7 @@ fn add<K, V, H, E>(map &!HashMap<K, V, H, E>, key K, value V) void {
   set map.size = map.size + 1;
 }
 
-fn addNodeToTable<K, V, H>(table &!Array<mut, Opt<HashMapNode<K, V>>>, hasher H, node HashMapNode<K, V>) {
+func addNodeToTable<K, V, H>(table &!Array<mut, Opt<HashMapNode<K, V>>>, hasher H, node HashMapNode<K, V>) {
   hash int = (&hasher)(node.key);
   startIndex = abs(hash mod table.len());
   index = findEmptyIndexForKey(&table, startIndex, node.key);
@@ -85,7 +85,7 @@ fn addNodeToTable<K, V, H>(table &!Array<mut, Opt<HashMapNode<K, V>>>, hasher H,
   set table[index] = opt;
 }
 
-fn findEmptyIndexForKey<K, V>(table &Array<mut, Opt<HashMapNode<K, V>>>, startIndex int, key K) int {
+func findEmptyIndexForKey<K, V>(table &Array<mut, Opt<HashMapNode<K, V>>>, startIndex int, key K) int {
   i! = 0;
   while i < table.len() {
     index = (startIndex + i) mod table.len();
@@ -99,7 +99,7 @@ fn findEmptyIndexForKey<K, V>(table &Array<mut, Opt<HashMapNode<K, V>>>, startIn
   panic("findEmptyIndexForKey went past end of table!");
 }
 
-fn findIndexOfKey<K, V, E>(table &Array<mut, Opt<HashMapNode<K, V>>>, equator E, startIndex int, key K) Opt<int> {
+func findIndexOfKey<K, V, E>(table &Array<mut, Opt<HashMapNode<K, V>>>, equator E, startIndex int, key K) Opt<int> {
   i! = 0;
   while i < table.len() {
     index = (startIndex + i) mod table.len();
@@ -117,7 +117,7 @@ fn findIndexOfKey<K, V, E>(table &Array<mut, Opt<HashMapNode<K, V>>>, equator E,
   panic("findIndexOfKey went past end of table! len " + str(table.len()) + " and i " + str(i));
 }
 
-fn get<K, V, H, E>(self &HashMap<K, V, H, E>, key K) Opt<&V> {
+func get<K, V, H, E>(self &HashMap<K, V, H, E>, key K) Opt<&V> {
   if self.table.len() == 0 {
     ret None<&V>();
   }
@@ -134,7 +134,7 @@ fn get<K, V, H, E>(self &HashMap<K, V, H, E>, key K) Opt<&V> {
 }
 
 // Perhaps we can find a way to make a function generic over permission?
-fn get<K, V, H, E>(self &!HashMap<K, V, H, E>, key K) Opt<&!V> {
+func get<K, V, H, E>(self &!HashMap<K, V, H, E>, key K) Opt<&!V> {
   if self.table.len() == 0 {
     ret None<&!V>();
   }
@@ -150,11 +150,11 @@ fn get<K, V, H, E>(self &!HashMap<K, V, H, E>, key K) Opt<&!V> {
   ret opt;
 }
 
-fn has<K, V, H, E>(self &HashMap<K, V, H, E>, key K) bool {
+func has<K, V, H, E>(self &HashMap<K, V, H, E>, key K) bool {
   not(self.get(key).isEmpty())
 }
 
-fn keys<K, V, H, E>(self &HashMap<K, V, H, E>) Array<imm, K> {
+func keys<K, V, H, E>(self &HashMap<K, V, H, E>) Array<imm, K> {
   list = List<K>();
   index! = 0;
   while index < self.table.len() {
@@ -167,7 +167,7 @@ fn keys<K, V, H, E>(self &HashMap<K, V, H, E>) Array<imm, K> {
   list.toImmArray()
 }
 
-fn values<K, V, H, E>(self &HashMap<K, V, H, E>) Array<mut, V> {
+func values<K, V, H, E>(self &HashMap<K, V, H, E>) Array<mut, V> {
   list = List<V>();
   index! = 0;
   while index < self.table.len() {
@@ -180,7 +180,7 @@ fn values<K, V, H, E>(self &HashMap<K, V, H, E>) Array<mut, V> {
   (list).toVaryArray()
 }
 
-fn innerRemove<K, V, H, E>(
+func innerRemove<K, V, H, E>(
   table &!Array<mut, Opt<HashMapNode<K, V>>>,
   hasher H,
   equator E,
@@ -194,7 +194,7 @@ int {
   ret index;
 }
 
-fn remove<K, V, H, E>(
+func remove<K, V, H, E>(
   map &!HashMap<K, V, H, E>,
   key K)
 void {
@@ -217,13 +217,13 @@ void {
 }
 
 struct IntHasher { }
-fn __call(this &IntHasher, x int) int { x }
+func __call(this &IntHasher, x int) int { x }
 
 struct IntEquator { }
-fn __call(this &IntEquator, a int, b int) bool { a == b }
+func __call(this &IntEquator, a int, b int) bool { a == b }
 
 
-fn each<F, K, V, H, E>(self &HashMap<K, V, H, E>, func &!F)
+func each<F, K, V, H, E>(self &HashMap<K, V, H, E>, func &!F)
 where Prot("__call", (&!F, &K, &V), _) {
   list = List<K>();
   index! = 0;
@@ -237,7 +237,7 @@ where Prot("__call", (&!F, &K, &V), _) {
   }
 }
 
-fn each<F, K, V, H, E>(self &!HashMap<K, V, H, E>, func &!F)
+func each<F, K, V, H, E>(self &!HashMap<K, V, H, E>, func &!F)
 where Prot("__call", (&!F, &K, &!V), _) {
   list = List<K>();
   index! = 0;
@@ -258,11 +258,11 @@ struct HashMapReadonlyIter<K, V> {
   pos! int;
 }
 
-fn begin<K, V, H, E>(map &HashMap<K, V, H, E>) HashMapReadonlyIter<K, V> {
+func begin<K, V, H, E>(map &HashMap<K, V, H, E>) HashMapReadonlyIter<K, V> {
   HashMapReadonlyIter<K, V>(map.table, 0)
 }
 
-fn next<K, V>(iter &!HashMapReadonlyIter<K, V>) Opt<(K, &V)> {
+func next<K, V>(iter &!HashMapReadonlyIter<K, V>) Opt<(K, &V)> {
   while iter.pos < iter.table.len() {
     this_pos = set iter.pos = iter.pos + 1;
     if not iter.table[this_pos].isEmpty() {
@@ -279,11 +279,11 @@ struct HashMapReadwriteIter<K, V> {
   pos! int;
 }
 
-fn begin<K, V, H, E>(map &!HashMap<K, V, H, E>) HashMapReadwriteIter<K, V> {
+func begin<K, V, H, E>(map &!HashMap<K, V, H, E>) HashMapReadwriteIter<K, V> {
   HashMapReadwriteIter<K, V>(&!map.table, 0)
 }
 
-fn next<K, V>(iter &!HashMapReadwriteIter<K, V>) Opt<(K, &!V)> {
+func next<K, V>(iter &!HashMapReadwriteIter<K, V>) Opt<(K, &!V)> {
   while iter.pos < iter.table.len() {
     this_pos = set iter.pos = iter.pos + 1;
     if not iter.table[this_pos].isEmpty() {

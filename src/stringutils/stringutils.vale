@@ -1,9 +1,9 @@
 import stdlib.collections.*;
 
-fn startsWith(a str, b str) bool { startsWith(a.slice(), b.slice()) }
-fn startsWith(a str, b StrSlice) bool { startsWith(a.slice(), b) }
-fn startsWith(a StrSlice, b str) bool { startsWith(a, b.slice()) }
-fn startsWith(a StrSlice, b StrSlice) bool {
+func startsWith(a str, b str) bool { startsWith(a.slice(), b.slice()) }
+func startsWith(a str, b StrSlice) bool { startsWith(a.slice(), b) }
+func startsWith(a StrSlice, b str) bool { startsWith(a, b.slice()) }
+func startsWith(a StrSlice, b StrSlice) bool {
   if b.len() > a.len() {
     ret false;
   }
@@ -11,10 +11,10 @@ fn startsWith(a StrSlice, b StrSlice) bool {
 }
 
 
-fn endsWith(a str, b str) bool { endsWith(a.slice(), b.slice()) }
-fn endsWith(a str, b StrSlice) bool { endsWith(a.slice(), b) }
-fn endsWith(a StrSlice, b str) bool { endsWith(a, b.slice()) }
-fn endsWith(a StrSlice, b StrSlice) bool {
+func endsWith(a str, b str) bool { endsWith(a.slice(), b.slice()) }
+func endsWith(a str, b StrSlice) bool { endsWith(a.slice(), b) }
+func endsWith(a StrSlice, b str) bool { endsWith(a, b.slice()) }
+func endsWith(a StrSlice, b StrSlice) bool {
   if b.len() > a.len() {
     ret false;
   }
@@ -22,15 +22,15 @@ fn endsWith(a StrSlice, b StrSlice) bool {
 }
 
 
-fn splice(original str, at int, removeNumChars int, insert str) str {
+func splice(original str, at int, removeNumChars int, insert str) str {
   before = original.slice(0, at).str();
   after = original.slice(at + removeNumChars, original.len()).str();
   ret before + insert + after;
 }
 
 
-fn ltrim(s str) StrSlice { ltrim(s.slice()) }
-fn ltrim(s! StrSlice) StrSlice {
+func ltrim(s str) StrSlice { ltrim(s.slice()) }
+func ltrim(s! StrSlice) StrSlice {
   whitespace = " \r\n\t";
   while true {
     if s == "" {
@@ -43,8 +43,8 @@ fn ltrim(s! StrSlice) StrSlice {
   }
   panic("unreachable");
 }
-fn rtrim(s str) StrSlice { rtrim(s.slice()) }
-fn rtrim(s! StrSlice) StrSlice {
+func rtrim(s str) StrSlice { rtrim(s.slice()) }
+func rtrim(s! StrSlice) StrSlice {
   whitespace = " \r\n\t";
   while true {
     if s == "" {
@@ -58,11 +58,11 @@ fn rtrim(s! StrSlice) StrSlice {
   panic("unreachable");
 }
 
-fn trim(s str) StrSlice { trim(s.slice()) }
-fn trim(s! StrSlice) StrSlice { ltrim(rtrim(s)) }
+func trim(s str) StrSlice { trim(s.slice()) }
+func trim(s! StrSlice) StrSlice { ltrim(rtrim(s)) }
 
-fn isWhitespace(s str) bool { isWhitespace(s.slice()) }
-fn isWhitespace(s! StrSlice) bool {
+func isWhitespace(s str) bool { isWhitespace(s.slice()) }
+func isWhitespace(s! StrSlice) bool {
   while len(s) > 0 {
     if " \r\n\t".find(s).isEmpty() {
       // then its not whitespace
@@ -74,8 +74,8 @@ fn isWhitespace(s! StrSlice) bool {
 }
 
 
-fn ltrimnl(s str) StrSlice { ltrimnl(s.slice()) }
-fn ltrimnl(s! StrSlice) StrSlice {
+func ltrimnl(s str) StrSlice { ltrimnl(s.slice()) }
+func ltrimnl(s! StrSlice) StrSlice {
   while true {
     if s == "" {
       ret s;
@@ -87,8 +87,8 @@ fn ltrimnl(s! StrSlice) StrSlice {
   }
   panic("unreachable");
 }
-fn rtrimnl(s str) StrSlice { rtrimnl(s.slice()) }
-fn rtrimnl(s! StrSlice) StrSlice {
+func rtrimnl(s str) StrSlice { rtrimnl(s.slice()) }
+func rtrimnl(s! StrSlice) StrSlice {
   whitespace = " \r\n\t";
   while true {
     if s == "" {
@@ -102,11 +102,11 @@ fn rtrimnl(s! StrSlice) StrSlice {
   panic("unreachable");
 }
 
-fn trimnl(s str) StrSlice { trimnl(s.slice()) }
-fn trimnl(s! StrSlice) StrSlice { ltrimnl(rtrimnl(s)) }
+func trimnl(s str) StrSlice { trimnl(s.slice()) }
+func trimnl(s! StrSlice) StrSlice { ltrimnl(rtrimnl(s)) }
 
-fn int(s! str) Opt<int> { int(s.slice()) }
-fn int(s! StrSlice) Opt<int> {
+func int(s! str) Opt<int> { int(s.slice()) }
+func int(s! StrSlice) Opt<int> {
   if s == "" {
     ret None<int>();
   }
@@ -150,16 +150,16 @@ struct SplitResult {
   beforeSplit StrSlice;
   afterSplit StrSlice;
 }
-fn splitOnce(haystack str, needle str) Opt<SplitResult> {
+func splitOnce(haystack str, needle str) Opt<SplitResult> {
   splitOnce(haystack.slice(), needle.slice())
 }
-fn splitOnce(haystack StrSlice, needle str) Opt<SplitResult> {
+func splitOnce(haystack StrSlice, needle str) Opt<SplitResult> {
   splitOnce(haystack, needle.slice())
 }
-fn splitOnce(haystack str, needle StrSlice) Opt<SplitResult> {
+func splitOnce(haystack str, needle StrSlice) Opt<SplitResult> {
   splitOnce(haystack.slice(), needle)
 }
-fn splitOnce(haystack StrSlice, needle StrSlice) Opt<SplitResult> {
+func splitOnce(haystack StrSlice, needle StrSlice) Opt<SplitResult> {
   maybeOffsetAfterBegin = find(haystack, needle);
   if maybeOffsetAfterBegin.isEmpty() {
     r Opt<SplitResult> = None<SplitResult>();
@@ -182,16 +182,16 @@ fn splitOnce(haystack StrSlice, needle StrSlice) Opt<SplitResult> {
 }
 
 
-fn split(haystack str, needle str) List<StrSlice> {
+func split(haystack str, needle str) List<StrSlice> {
   split(haystack.slice(), needle.slice())
 }
-fn split(haystack str, needle StrSlice) List<StrSlice> {
+func split(haystack str, needle StrSlice) List<StrSlice> {
   split(haystack.slice(), needle)
 }
-fn split(haystack StrSlice, needle str) List<StrSlice> {
+func split(haystack StrSlice, needle str) List<StrSlice> {
   split(haystack, needle.slice())
 }
-fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
+func split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
   // Special case first: this means they want to explode a string into
   // chars, like "abc" into "a", "b", "c"  
   if needle == "" {
@@ -275,7 +275,7 @@ fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
 
 
 struct StrSliceHasher { }
-fn __call(self &StrSliceHasher, s! StrSlice) int {
+func __call(self &StrSliceHasher, s! StrSlice) int {
   sum! = 0;
   while s != "" {
     set sum = sum * 1337 + toAscii(s.slice(0, 1));
@@ -285,12 +285,12 @@ fn __call(self &StrSliceHasher, s! StrSlice) int {
 }
 
 struct StrSliceEquator { }
-fn __call(self &StrSliceEquator, a StrSlice, b StrSlice) bool {
+func __call(self &StrSliceEquator, a StrSlice, b StrSlice) bool {
   a == b
 }
 
 struct StrHasher { }
-fn __call(self &StrHasher, original_str! str) int {
+func __call(self &StrHasher, original_str! str) int {
   s = original_str.slice();
   sum! = 0;
   while s != "" {
@@ -301,7 +301,7 @@ fn __call(self &StrHasher, original_str! str) int {
 }
 
 struct StrEquator { }
-fn __call(self &StrEquator, a str, b str) bool {
+func __call(self &StrEquator, a str, b str) bool {
   a == b
 }
 
@@ -309,65 +309,65 @@ fn __call(self &StrEquator, a str, b str) bool {
 struct StringBuilder {
   parts List<StrSlice>;
 }
-fn StringBuilder() StringBuilder {
+func StringBuilder() StringBuilder {
   StringBuilder(List<StrSlice>())
 }
-fn assembleStr(self &StringBuilder) str {
+func assembleStr(self &StringBuilder) str {
   result! = "";
   foreach s in self.parts {
     set result = result + s;
   }
   ret result;
 }
-fn str(self &StringBuilder) str { self.assembleStr() }
-fn print(self &!StringBuilder, b bool) {
+func str(self &StringBuilder) str { self.assembleStr() }
+func print(self &!StringBuilder, b bool) {
   self!.print(str(b));
 }
-fn print(self &!StringBuilder, s str) {
+func print(self &!StringBuilder, s str) {
   self!.print(s.slice());
 }
-fn print(self &!StringBuilder, s StrSlice) {
+func print(self &!StringBuilder, s StrSlice) {
   self.parts!.add(s);
 }
-fn print(self &!StringBuilder, i int) {
+func print(self &!StringBuilder, i int) {
   self!.print(str(i).slice());
 }
-fn println(self &!StringBuilder, s str) {
+func println(self &!StringBuilder, s str) {
   self!.print(s);
   self!.print("\n");
 }
-fn println(self &!StringBuilder, s StrSlice) {
+func println(self &!StringBuilder, s StrSlice) {
   self!.print(s);
   self!.print("\n");
 }
-fn println(self &!StringBuilder, i int) {
+func println(self &!StringBuilder, i int) {
   self!.print(i);
   self!.print("\n");
 }
 
 
-fn replaceAll(source str, needle str, replacement str) str {
+func replaceAll(source str, needle str, replacement str) str {
   replaceAll(source.slice(), needle.slice(), replacement.slice())
 }
-fn replaceAll(source str, needle str, replacement StrSlice) str {
+func replaceAll(source str, needle str, replacement StrSlice) str {
   replaceAll(source.slice(), needle.slice(), replacement)
 }
-fn replaceAll(source str, needle StrSlice, replacement str) str {
+func replaceAll(source str, needle StrSlice, replacement str) str {
   replaceAll(source.slice(), needle, replacement.slice())
 }
-fn replaceAll(source str, needle StrSlice, replacement StrSlice) str {
+func replaceAll(source str, needle StrSlice, replacement StrSlice) str {
   replaceAll(source.slice(), needle, replacement)
 }
-fn replaceAll(source StrSlice, needle str, replacement str) str {
+func replaceAll(source StrSlice, needle str, replacement str) str {
   replaceAll(source, needle.slice(), replacement.slice())
 }
-fn replaceAll(source StrSlice, needle str, replacement StrSlice) str {
+func replaceAll(source StrSlice, needle str, replacement StrSlice) str {
   replaceAll(source, needle.slice(), replacement)
 }
-fn replaceAll(source StrSlice, needle StrSlice, replacement str) str {
+func replaceAll(source StrSlice, needle StrSlice, replacement str) str {
   replaceAll(source, needle, replacement.slice())
 }
-fn replaceAll(remaining_source StrSlice, needle StrSlice, replacement StrSlice) str {
+func replaceAll(remaining_source StrSlice, needle StrSlice, replacement StrSlice) str {
   builder = StringBuilder();
 
   running = true;

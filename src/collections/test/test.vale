@@ -5,30 +5,30 @@ struct Ship {
   fuel int;
 }
 
-exported fn main() {
+exported func main() {
   suite = TestSuite();
 
   suite!.test("List from SSA of primitives", {
     list =
-      List([][
+      List([#][
         13,
         14,
         15
       ]);
     sum = 0;
-    list.each({ set sum = sum + _ });
+    list.each({ set sum = sum + _; });
     sum should_equal 42;
   });
 
   suite!.test("List from SSA of instances", {
     list =
-      List([][
+      List([#][
         Ship(13),
         Ship(14),
         Ship(15)
       ]);
     sum = 0;
-    list.each({ set sum = sum + _.fuel });
+    list.each({ set sum = sum + _.fuel; });
     sum should_equal 42;
   });
 
@@ -39,12 +39,12 @@ exported fn main() {
         .add(14))
         .add(15)).build();
     sum = 0;
-    list.each({ set sum = sum + _ });
+    list.each({ set sum = sum + _; });
     sum should_equal 42;
   });
 
   suite!.test("List from SSA", {
-    list = List([][13, 14, 15]);
+    list = List([#][13, 14, 15]);
     list.get(0) should_equal 13;
     list.get(1) should_equal 14;
     list.get(2) should_equal 15;
